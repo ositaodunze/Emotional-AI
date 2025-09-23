@@ -1,7 +1,23 @@
 # Emotional-AI
 
 Our project is based around the idea of an AI that can detect facial expressions and moods through scanning databases.
-Our goal is to have an AI application that can detect a person's facial expression, and therfore mood, and then suggest a song or playlist based on that.
-We need to train an AI model on already existing facial recognition databases, Develop a WebCam application for detecting the facial expression of the program user, and Train the AI on recognizing moods through tune, rhythm, amnd lyrics of the song; in order for it to correctly categorize the user's song choice.
+
+Our goal is to have an AI application that can detect a person's facial expression, therfore mood, and then suggest a song or playlist based on that.
+
+We need to train an AI model on already existing facial recognition databases, Develop a WebCam application for detecting the facial expression of the program user, and Train the AI on recognizing moods through tune, rhythm, and lyrics of the song; in order for it to correctly categorize the user's song choice.
+
+The 5 facial expressions we plan to focus on are anger, sadness, neutrality, happiness, and surprise.
+
+Our major progress impications are to:
+1. Train the model on facial recognition data
+2. Make sure the model can recognize and correctly identify different facial expressions
+3. Make sure the webcam works properly.
+
+
+We plan to use OpenCV, Rough Cam script, connect those two scripts.
+Then use Tensor Flow to train our AI model.
+
+
+
 
 
