@@ -9,7 +9,7 @@ function App() {
     <>
       <div className="flex flex-col items-center p-6">
         <h1 className="text-3xl font-bold mb-4 text-blue-700">
-          Emotion AI Music Player
+          FeedMusic
         </h1>
         <CamFeed onEmotionDetected={setEmotion} />
       </div>
