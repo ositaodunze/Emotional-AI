@@ -7,6 +7,7 @@ const CamFeed = ({ onEmotionDetected }) => {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [currentEmotion, setCurrentEmotion] = useState("");
   const [intervalId, setIntervalId] = useState(null);
+  
   const emotionLabels = {
     happy: "Happiness",
     sad: "Sadness",
@@ -118,7 +119,6 @@ const CamFeed = ({ onEmotionDetected }) => {
         className="rounded-2xl shadow-lg"
       />
       <div ref={canvasRef} className="absolute top-0" />
-      {currentEmotion && <h2>Current Emotion: {emotionLabels[currentEmotion]}</h2>}
     </div>
   );
 };

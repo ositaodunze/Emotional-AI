@@ -3,6 +3,7 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
+import emotion_utils
 
 # ---- Load environment variables ----
 load_dotenv()
@@ -38,6 +39,19 @@ print(f"💳 Account type: {me['product'].upper()}")
 if me["product"].lower() != "premium":
     print("⚠️ Warning: Playback control may not work on free accounts.")
 
+# ---- Spotify search helper ----
+def search_tracks(emotion: str, genres: list[str]):
+    """Search for Spotify tracks based on emotion and genre list."""
+    emotion_query = emotion_utils.get_emotion_query(emotion)
+    combined_query = f"{emotion_query} {' '.join(genres)}"
+
+    print(f"\n🔍 Searching tracks for mood '{emotion.upper()}' with genres: {', '.join(genres)}")
+    print("Search query:", combined_query)
+
+    results = sp.search(q=combined_query, type="track", limit=10)
+    return results["tracks"]["items"]
+
+'''
 # ---- Ask for user preferences ----
 print("\n🎶 Welcome to the Emotion-Driven Music Player!")
 print("Pick 3 genres you like most (examples: pop, rock, lofi, jazz, hip-hop, edm, classical):")
@@ -54,24 +68,16 @@ elif len(genre_prefs) < 3:
 print(f"✅ Genres selected: {', '.join(genre_prefs)}")
 
 # ---- Ask user for current emotion ----
-print("\n😊 Emotions you can try: happy, sad, angry, calm, neutral, surprised")
-detected_emotion = input("➡️ How are you feeling today? ").strip().lower()
+print("\n😊 Emotions you can try: happy, sad, angry, neutral, surprised")
+#detected_emotion = input("➡️ How are you feeling today? ").strip().lower()
+
 
 # ---- Emotion keywords mapping ----
-emotion_query_map = {
-    "happy": "happy upbeat positive feel-good",
-    "sad": "sad emotional acoustic mellow",
-    "angry": "angry intense heavy rock metal",
-    "calm": "calm chill relaxing background",
-    "neutral": "lofi chill background",
-    "surprised": "energetic edm upbeat dance"
-}
-
-emotion_query = emotion_query_map.get(detected_emotion, "chill lofi background")
+emotion_query = emotion_utils.emotion_query_map.get(spotify_recc.detected_emotion, "chill lofi background")
 
 # ---- Combine emotion with genres ----
 combined_query = f"{emotion_query} {' '.join(genre_prefs)}"
-print(f"\n🎧 Searching tracks for mood '{detected_emotion.upper()}' with your genres: {', '.join(genre_prefs)}")
+print(f"\n🎧 Searching tracks for mood '{spotify_recc.detected_emotion.upper()}' with your genres: {', '.join(genre_prefs)}")
 print("🔍 Search query:", combined_query)
 
 # ---- Search for tracks ----
@@ -114,4 +120,4 @@ if current and current.get("is_playing"):
 else:
     print("⚠️ Could not verify playback. Make sure Spotify is active and Premium is enabled.")
 
-
+'''
