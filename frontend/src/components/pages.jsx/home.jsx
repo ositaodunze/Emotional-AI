@@ -1,5 +1,5 @@
 console.log(`hello`);
-console.log(``);
+console.log(`goodbye`);
 
 window.alert(`Your face is out of the frame`);
 //comment
