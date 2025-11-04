@@ -7,7 +7,7 @@ const CamFeed = ({ onEmotionDetected }) => {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [currentEmotion, setCurrentEmotion] = useState("");
   const [intervalId, setIntervalId] = useState(null);
-  
+
   const emotionLabels = {
     happy: "Happiness",
     sad: "Sadness",
@@ -15,7 +15,6 @@ const CamFeed = ({ onEmotionDetected }) => {
     surprised: "Surprise",
     neutral: "Neutral",
   };
-
 
   useEffect(() => {
     // Load models
@@ -55,24 +54,23 @@ const CamFeed = ({ onEmotionDetected }) => {
           .withFaceLandmarks()
           .withFaceExpressions();
 
-          //filter to only 5 used in project
-          const allowedEmotions = [
-            "happy",
-            "sad",
-            "surprised",
-            "angry",
-            "neutral",
-          ];
+        //filter to only 5 used in project
+        const allowedEmotions = [
+          "happy",
+          "sad",
+          "surprised",
+          "angry",
+          "neutral",
+        ];
 
-          const filteredExpressions = Object.entries(
-            detections[0].expressions
-          ).filter(([emotion]) => allowedEmotions.includes(emotion));
+        const filteredExpressions = Object.entries(
+          detections[0].expressions
+        ).filter(([emotion]) => allowedEmotions.includes(emotion));
 
-          const highestEmotion = filteredExpressions.reduce(
-            (max, current) => (current[1] > max[1] ? current : max),
-            [allowedEmotions[0], 0]
-          );
-
+        const highestEmotion = filteredExpressions.reduce(
+          (max, current) => (current[1] > max[1] ? current : max),
+          [allowedEmotions[0], 0]
+        );
 
         faceapi.matchDimensions(canvas, {
           width: videoRef.current.videoWidth,
@@ -100,7 +98,6 @@ const CamFeed = ({ onEmotionDetected }) => {
             setCurrentEmotion(highestEmotion[0]);
             onEmotionDetected(highestEmotion[0]);
           }
-
         }
       }, 500);
       setIntervalId(id);
