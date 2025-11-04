@@ -1,23 +1,35 @@
-# Emotional-AI
+# FeedMusic
+FeedMusic is a web-application that uses facial recognition to detect user's emotion and map that to music. Our AI based project maps mood to music, generates a playlist with a variety of songs to match or improve the user's mood. 
 
-Our project is based around the idea of an AI that can detect facial expressions and moods through scanning databases.
+The 5 facial expressions focused are: anger, sadness, neutrality, happiness, and surprise.
 
-Our goal is to have an AI application that can detect a person's facial expression, therfore mood, and then suggest a song or playlist based on that.
+# Frontend
+This application is developed using VITE + React to detect real-time facial emotions from a webcam feed using face-api.js model for facial regonition, model nagalysis, and emotion classifer. 
 
-We need to train an AI model on already existing facial recognition databases, Develop a WebCam application for detecting the facial expression of the program user, and Train the AI on recognizing moods through tune, rhythm, and lyrics of the song; in order for it to correctly categorize the user's song choice.
+# Backend 
+Service implemented using Python and FASTAPI. (to be implemented)
+Developed in Python, uses SpotifyAPI for playlist genration, and playback.
+Maps emotion to music using user's genre preference and lyric or song's description. Based on these, a playlist is generated and is able to be played. 
 
-The 5 facial expressions we plan to focus on are anger, sadness, neutrality, happiness, and surprise.
+## Setting Up the Development Environment
+- Ensure node.js is installed. 
+Run: npm install
 
-Our major progress impications are to:
-1. Train the model on facial recognition data
-2. Make sure the model can recognize and correctly identify different facial expressions
-3. Make sure the webcam works properly.
+- To open website: 
+Run: npm run dev
 
+- Ensure Python 3.11 or higher is installed on your machine.
+- Create a vm in directory
+Run: python -m venv .venv
+Install required dependencies: pip install -r requirements.txt
 
-We plan to use OpenCV, Rough Cam script, connect those two scripts.
-Then use Tensor Flow to train our AI model.
+## Next Steps
+- Implement service using Python & FAST API. 
+- Modify frontend and backend scripts to be able to facilate get/post protocols.
+- Implement backend for prefence storage
+- Combine logic for smooth user experience
 
-
-
+## Team
+Developed by Jaunel Panton, Osita Odunze, Marissa Savage, Najae Potts
 
 
