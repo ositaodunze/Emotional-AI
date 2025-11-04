@@ -8,14 +8,6 @@ const CamFeed = ({ onEmotionDetected }) => {
   const [currentEmotion, setCurrentEmotion] = useState("");
   const [intervalId, setIntervalId] = useState(null);
 
-  const emotionLabels = {
-    happy: "Happiness",
-    sad: "Sadness",
-    angry: "Anger",
-    surprised: "Surprise",
-    neutral: "Neutral",
-  };
-
   useEffect(() => {
     // Load models
     Promise.all([

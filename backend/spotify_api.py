@@ -1,9 +1,7 @@
 import os
-import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
-import emotion_utils
 
 # ---- Load environment variables ----
 load_dotenv()
@@ -29,48 +27,20 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope=scope
 ))
 
-print("✅ Successfully authenticated with Spotify!")
+def get_spotify_client(token=None):
+    if token:
+        return spotipy.Spotify(auth=token)
+    return spotipy.Spotify(auth_manager=sp)
 
-# ---- Confirm user info ----
-me = sp.current_user()
-print(f"👤 Logged in as: {me['display_name']} ({me['email']})")
-print(f"💳 Account type: {me['product'].upper()}")
+def get_auth_url():
+    return sp.get_authorize_url()
 
-if me["product"].lower() != "premium":
-    print("⚠️ Warning: Playback control may not work on free accounts.")
+def get_token_from_code(code):
+    return sp.get_access_token(code, as_dict=True)
 
-# ---- Spotify search helper ----
-def search_tracks(emotion: str, genres: list[str]):
-    """Search for Spotify tracks based on emotion and genre list."""
-    emotion_query = emotion_utils.get_emotion_query(emotion)
-    combined_query = f"{emotion_query} {' '.join(genres)}"
 
-    print(f"\n🔍 Searching tracks for mood '{emotion.upper()}' with genres: {', '.join(genres)}")
-    print("Search query:", combined_query)
-
-    results = sp.search(q=combined_query, type="track", limit=10)
-    return results["tracks"]["items"]
 
 '''
-# ---- Ask for user preferences ----
-print("\n🎶 Welcome to the Emotion-Driven Music Player!")
-print("Pick 3 genres you like most (examples: pop, rock, lofi, jazz, hip-hop, edm, classical):")
-genre_prefs = input("➡️ Enter 3 genres separated by commas: ").strip().lower().split(",")
-
-# Clean and validate genre input
-genre_prefs = [g.strip() for g in genre_prefs if g.strip()]
-if len(genre_prefs) == 0:
-    genre_prefs = ["pop", "lofi", "edm"]  # default fallback
-elif len(genre_prefs) < 3:
-    while len(genre_prefs) < 3:
-        genre_prefs.append("pop")
-
-print(f"✅ Genres selected: {', '.join(genre_prefs)}")
-
-# ---- Ask user for current emotion ----
-print("\n😊 Emotions you can try: happy, sad, angry, neutral, surprised")
-#detected_emotion = input("➡️ How are you feeling today? ").strip().lower()
-
 
 # ---- Emotion keywords mapping ----
 emotion_query = emotion_utils.emotion_query_map.get(spotify_recc.detected_emotion, "chill lofi background")

@@ -20,7 +20,7 @@ const EmotionDetection = () => {
       setActiveEmotion(pendingEmotion);
       setShowPrompt(false);
       try {
-        const response = await fetch("http://127.0.0.1:8000/emotion", {
+        const response = await fetch("http://localhost:8000/emotion", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
