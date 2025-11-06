@@ -1,55 +1,77 @@
 @import "tailwindcss";
 
+
 ul.topnav {
     justify-content: center;
     align-items: center;
-  display: flex;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  background-color: #333333;
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333333;
 }
 
 /* Style links in topnav */
 ul.topnav li a {
-  display: block;
-  color: #f1f1f1;
-  padding: 14px 16px;
-  text-decoration: none;
+    display: block;
+    color: #f1f1f1;
+    padding: 14px 16px;
+    text-decoration: none;
 }
 
 /* Change color on hover */
 ul.topnav li a:hover {
-  background-color: #dddddd;
-  color: black;
+    background-color: #dddddd;
+    color: black;
 }
 
-
-body{
+body {
     background-color: white;
     background-image: linear-gradient(#A36EFA, #AE18E5);
-    font-style: normal ;
+    font-style: normal;
     font-size: large;
     font-weight: normal;
     font-family: sans-serif;
-    display: block;
-    justify-content: center;
-    align-items: center;
-    
-    
-
-
-
-
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
 }
-#myH1{
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+#myH1 {
     animation-timing-function: ease-in-out;
     animation-duration: 3s;
+    margin: 2rem 0;
+    text-align: center;
+    color: white;
 }
 
-#CalibrateButton{
-    border: black;
-    border-radius: 12px;
-    padding: 10px;
+#myP {
+    text-align: center;
+    margin: 1rem 0;
+    color: white;
 }
+
+#CalibrateButton {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 30px;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#CalibrateButton:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 
