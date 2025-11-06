@@ -5,9 +5,9 @@ body{
     font-style: normal ;
     font-size: large;
     font-weight: normal;
-
-
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
 
 
