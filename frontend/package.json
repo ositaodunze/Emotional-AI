@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vladmandic/face-api": "^1.7.15",
     "@tailwindcss/vite": "^4.1.16",
+    "@vladmandic/face-api": "^1.7.15",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.16"
