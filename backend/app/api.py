@@ -1,17 +1,17 @@
-from fastapi import FastAPI,Request
+from fastapi import FastAPI,Request,APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
-from spotify_recc import get_spotify_recommendations
+import spotify_recc
 import spotify_api
 import emotion_utils
+import json
 
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
-    "localhost:5173"
+    "http://127.0.0.1:5173"
 ]
 
 
@@ -32,41 +32,109 @@ class EmotionInput(BaseModel):
 async def read_root() -> dict:
     return {"message": "Welcome to FeedMusic."}
 
-@app.get("/login")
+@app.get("/spotify/login")
 def login():
     return RedirectResponse(spotify_api.get_auth_url())
 
 @app.get("/callback")
-def callback(request:Request):
+def callback(request: Request):
     code = request.query_params.get("code")
     token_info = spotify_api.get_token_from_code(code)
-    response = RedirectResponse("http://localhost:3000/")  # redirect to frontend
-    response.set_cookie("spotify_token", token_info["access_token"], httponly=True)
+    response = RedirectResponse("http://127.0.0.1:5173/")
+    response.set_cookie(
+        key="spotify_token_info",
+        value=json.dumps(token_info),
+        httponly=True,
+        samesite="lax",
+        secure=False
+    )
     return response
 
-@app.get("/api/me")
+
+@app.get("/spotify/me")
 def get_user(request: Request):
-    token = request.cookies.get("spotify_token")
-    sp = spotify_api.get_spotify_client(token)
+    token_info_json = request.cookies.get("spotify_token_info")
+    print("🧠 Cookies received:", request.cookies)
+    if not token_info_json:
+        return JSONResponse({"error": "Not logged in"}, status_code = 401)
+    sp = spotify_api.get_spotify_client(token_info_json)
     me = sp.current_user()
     return {"display_name": me["display_name"], "email": me["email"], "product": me["product"]}
 
-@app.post("/api/recommendations")
+@app.get("/api/genres")
+def get_user_genres(request: Request):
+    token_info_json = request.cookies.get("spotify_token_info")
+    if not token_info_json:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    sp = spotify_api.get_spotify_client(token_info_json)
+
+    try:
+        top_artists = sp.current_user_top_artists(limit=20, time_range="medium_term")
+        genres = list({genre for artist in top_artists["items"] for genre in artist["genres"]})
+        return {"genres": genres[:15] or []}
+    except Exception as e:
+        print("Error fetching user genres:", e)
+        return {"genres": []}
+
+    
+@app.post("/api/recommendation")
 async def get_recommendations(request: Request):
     body = await request.json()
     emotion = body.get("emotion")
-    genres = body.get("genres", [])
-    token = request.cookies.get("spotify_token")
-
-    sp = spotify_api.get_spotify_client(token)
+    selected_genres = body.get("genres", [])
+    token_info_json = request.cookies.get("spotify_token_info")
+    if not token_info_json:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    sp = spotify_api.get_spotify_client(token_info_json)
     emotion_query = emotion_utils.get_emotion_query(emotion)
-    combined_query = f"{emotion_query} {' '.join(genres)}"
+    combined_query = f"{emotion_query} {' '.join(selected_genres)}"
     results = sp.search(q=combined_query, type="track", limit=10)
 
-    return {"tracks": results["tracks"]["items"]}
+    recommendations = [
+    {
+        "name": item["name"],
+        "artist": item["artists"][0]["name"],
+        "url": item["external_urls"]["spotify"],
+        "uri": item["uri"],
+    }
+    for item in results["tracks"]["items"]
+]
+
+    if not recommendations:
+        # Fallback: search a generic playlist if nothing is found
+        fallback_results = sp.search(q="mood booster", type="track", limit=10)
+        recommendations = [
+            {
+                "name": item["name"],
+                "artist": item["artists"][0]["name"],
+                "url": item["external_urls"]["spotify"],
+                "uri": item["uri"],
+            }
+            for item in fallback_results["tracks"]["items"]
+        ]
+
+    return {"recommendations": recommendations}
 
 
-@app.post("/emotion", tags=["emotion"])
-async def get_emotion(input:EmotionInput):
-    recommendation = get_spotify_recommendations(input.emotion, input.genres)
-    return { "detectedemotion": input.emotion, "recommendations":recommendation }
+@app.post("/api/play")
+async def play(request: Request):
+    body = await request.json()
+    uris = body.get("uris", [])
+    token_info_json = request.cookies.get("spotify_token_info")
+
+    if not token_info_json:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    sp = spotify_api.get_spotify_client(token_info_json)
+    result = spotify_recc.start_playback(sp, uris)
+    return result
+
+@app.get("/api/current-track")
+def current_track(request: Request):
+    token_info_json = request.cookies.get("spotify_token_info")
+    if not token_info_json:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    sp = spotify_api.get_spotify_client(token_info_json)
+    return spotify_recc.get_current_track(sp)
+
