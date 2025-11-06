@@ -1,25 +1,5 @@
 @import "tailwindcss";
-body{
-    background-color: white;
-    background-image: linear-gradient(#A36EFA, #AE18E5);
-    font-style: normal ;
-    font-size: large;
-    font-weight: normal;
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    
 
-
-
-
-}
-#myH1{
-    animation-timing-function: ease-in-out;
-    animation-duration: 3s;
-}
 ul.topnav {
   display: flex;
   list-style-type: none;
@@ -40,6 +20,29 @@ ul.topnav li a {
 ul.topnav li a:hover {
   background-color: #dddddd;
   color: black;
+}
+
+
+body{
+    background-color: white;
+    background-image: linear-gradient(#A36EFA, #AE18E5);
+    font-style: normal ;
+    font-size: large;
+    font-weight: normal;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    
+
+
+
+
+}
+#myH1{
+    animation-timing-function: ease-in-out;
+    animation-duration: 3s;
 }
 
 
