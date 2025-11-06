@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* add near the top or bottom of home.css */
+html, body {
+  height: 100%;
+  overflow-y: auto;        /* allow vertical scrolling when needed */
+  scroll-behavior: smooth; /* optional: smooth scroll for in-page anchors */
+}
 
 ul.topnav {
     justify-content: center;
@@ -45,12 +51,48 @@ body {
     padding: 2rem;
 }
 
+/* Heading animations: entrance + subtle glow */
 #myH1 {
-    animation-timing-function: ease-in-out;
-    animation-duration: 3s;
+    /* keep your existing animation timing if desired, but replace with this combined animation */
     margin: 2rem 0;
     text-align: center;
     color: white;
+
+    /* Two animations:
+       1) headingEnter -> handles transform + opacity once
+       2) headingGlow  -> handles glow (filter) repeating, doesn't touch transform so no conflict
+    */
+    animation: headingEnter 800ms cubic-bezier(.2,.9,.3,1) both,
+               headingGlow 3s ease-in-out 1s infinite;
+}
+
+/* Entrance animation: slide up + fade in */
+@keyframes headingEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.99);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Subtle glow using filter so transforms are not conflicted */
+@keyframes headingGlow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(255,255,255,0));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.12));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255,255,255,0));
+  }
 }
 
 #myP {

@@ -1,7 +1,7 @@
 //console.log(`hello`);
 //console.log(`goodbye`);
 
-window.alert(`Your face is out of the frame`);
+//window.alert(`Your face is out of the frame`);
 //comment: add a conditional statement to check if face is in frame
 /*if (faceInFrame) {
     window.alert(`Your face is in the frame`);
