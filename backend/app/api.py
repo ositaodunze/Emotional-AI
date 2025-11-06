@@ -10,8 +10,7 @@ import emotion_utils
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
-    "localhost:5173"
+    "http://127.0.0.1:5173"
 ]
 
 
@@ -40,14 +39,14 @@ def login():
 def callback(request:Request):
     code = request.query_params.get("code")
     token_info = spotify_api.get_token_from_code(code)
-    response = RedirectResponse("http://localhost:5173/connect")  # redirect to frontend
-    response.set_cookie(key="spotify_token", value=token_info["access_token"], httponly=False,samesite="none")
+    response = RedirectResponse("http://127.0.0.1:5173/")  # redirect to frontend
+    response.set_cookie(key="spotify_token", value=token_info["access_token"], httponly=True,samesite="none",secure=True)
     return response
 
 @app.get("/spotify/me")
 def get_user(request: Request):
     token = request.cookies.get("spotify_token")
-    print("🪪 Cookie received:", token)  # Add this to confirm
+    print("🧠 Cookies received:", request.cookies)
     if not token:
         return JSONResponse({"error": "Not logged in"}, status_code = 401)
     sp = spotify_api.get_spotify_client(token)

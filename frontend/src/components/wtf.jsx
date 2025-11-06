@@ -1,96 +1,118 @@
 import React, { useEffect, useState } from "react";
 
-const MusicPlayback = ({ emotion, onGenerateNew }) => {
+// Example genre set – replace/update as needed
+const GENRES = [
+  "pop",
+  "rock",
+  "hip-hop",
+  "jazz",
+  "classical",
+  "electronic",
+  "country",
+];
+
+const emotionLabels = {
+  happy: "Happiness",
+  sad: "Sadness",
+  angry: "Anger",
+  surprised: "Surprise",
+  neutral: "Neutral",
+};
+
+const MusicPlayback = ({ emotion }) => {
+  const [genre, setGenre] = useState("");
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [selectedTracks, setSelectedTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentTrackUri, setCurrentTrackUri] = useState(null);
   const [spotifyEmbed, setSpotifyEmbed] = useState(null);
-
-  // Emotion display labels
-  const emotionLabels = {
-    happy: "Happiness",
-    sad: "Sadness",
-    angry: "Anger",
-    surprised: "Surprise",
-    neutral: "Neutral",
-  };
 
   // Fetch recommendations from FastAPI
   useEffect(() => {
-    if (!emotion) return;
-
+    if (!emotion || !genre) return;
     const fetchRecommendations = async () => {
       setLoading(true);
       setError(null);
       setRecommendations([]);
-
       try {
         const response = await fetch(
-          "http://127.0.0.1:8888/api/recommendation",
+          "http://localhost:8888/api/recommendation",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ emotion }),
+            body: JSON.stringify({ emotion, genre }),
           }
         );
-
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
-
         const data = await response.json();
         const tracks = data.recommendations || [];
         setRecommendations(tracks);
-
         if (tracks.length > 0) {
-          // Auto-play the first track
-          const firstTrack = tracks[0];
-          const firstUri = firstTrack.uri;
-
-          await fetch("http://127.0.0.1:8888/api/play", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ uris: [firstUri] }),
-            credentials: "include",
-          });
-
-          // Embed Spotify player for that track
-          const trackId = firstUri.split(":")[2];
-          setSpotifyEmbed(`https://open.spotify.com/embed/track/${trackId}`);
+          handlePlayTrack(tracks[0].uri);
         }
       } catch (err) {
-        console.error("Error fetching recommendations:", err);
         setError("Failed to load recommendations. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchRecommendations();
-  }, [emotion]);
+  }, [emotion, genre]);
 
-  // Select or deselect a song
+  // Play a selected track
+  const handlePlayTrack = async (uri) => {
+    setCurrentTrackUri(uri);
+    const trackId = uri.split(":")[2];
+    setSpotifyEmbed(`https://open.spotify.com/embed/track/${trackId}`);
+    await fetch("http://localhost:8888/api/play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uris: [uri] }),
+      credentials: "include",
+    });
+  };
+
   const toggleSelectTrack = (uri) => {
     setSelectedTracks((prev) =>
       prev.includes(uri) ? prev.filter((id) => id !== uri) : [...prev, uri]
     );
   };
 
-  // Save playlist (placeholder – integrate later with Spotify API)
-  const handleSavePlaylist = () => {
+  // Save playlist using API (placeholder: replace with Spotify save logic)
+  const handleSavePlaylist = async () => {
     if (!playlistName.trim()) {
       alert("Please enter a playlist name.");
       return;
     }
-
     if (selectedTracks.length === 0) {
       alert("Please select at least one song.");
       return;
     }
+    // Optionally send a request to create a Spotify playlist here
+    const response = await fetch("http://localhost:8888/api/save_playlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ playlistName, trackUris: selectedTracks }),
+      credentials: "include",
+    });
+    if (response.ok) {
+      alert(`Playlist "${playlistName}" saved to your Spotify!`);
+    } else {
+      alert("Failed to save playlist.");
+    }
+  };
 
-    console.log("Saving playlist:", playlistName, selectedTracks);
-    alert(`Playlist "${playlistName}" saved successfully!`);
+  // Playback controls (pause/play/skip)
+  // These are stubs; your backend must handle playback or use Spotify Web Playback SDK here
+  const handlePlaybackCommand = async (command) => {
+    await fetch(`http://localhost:8888/api/${command}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
   };
 
   return (
@@ -100,8 +122,22 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
           Emotion: {emotionLabels[emotion] || emotion}
         </h2>
-
-        <div className="mb-4">
+        <div className="mb-2">
+          <label className="block font-semibold mb-2">Genre:</label>
+          <select
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          >
+            <option value="">Select genre</option>
+            {GENRES.map((g) => (
+              <option key={g} value={g}>
+                {g[0].toUpperCase() + g.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4 mt-2">
           <input
             type="text"
             placeholder="Enter playlist name..."
@@ -116,12 +152,10 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
             Save Playlist
           </button>
         </div>
-
         {loading && (
           <p className="text-gray-500 italic">Fetching recommendations...</p>
         )}
         {error && <p className="text-red-500">{error}</p>}
-
         {!loading && recommendations.length > 0 && (
           <ul className="space-y-3 mt-4">
             {recommendations.map((song, i) => (
@@ -135,7 +169,12 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
                 }`}
               >
                 <div>
-                  <p className="font-semibold">{song.name}</p>
+                  <p
+                    className="font-semibold cursor-pointer hover:underline"
+                    onClick={() => handlePlayTrack(song.uri)}
+                  >
+                    {song.name}
+                  </p>
                   <p className="text-sm text-gray-500">{song.artist}</p>
                 </div>
                 <a
@@ -150,28 +189,43 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
             ))}
           </ul>
         )}
-
         {!loading && recommendations.length === 0 && !error && (
-          <p className="text-gray-500 mt-3">No songs found for this emotion.</p>
-        )}
-
-        {/* Generating new playlist*/}
-        {!loading && recommendations.length > 0 && (
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={onGenerateNew}
-              className="bg-indigo-500 hover: bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-md transition"
-              >Generate Another Playlist</button>
-          </div>
+          <p className="text-gray-500 mt-3">
+            No songs found for this emotion and genre.
+          </p>
         )}
       </div>
-
-      {/* RIGHT SECTION – Spotify embedded player */}
+      {/* RIGHT SECTION – Playback controls and embedded player */}
       <div className="w-full md:w-1/2 p-6 flex flex-col items-center justify-center">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">
           Spotify Playback
         </h2>
-
+        <div className="flex mb-4 space-x-4">
+          <button
+            onClick={() => handlePlaybackCommand("previous")}
+            className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            ⏮️
+          </button>
+          <button
+            onClick={() => handlePlaybackCommand("pause")}
+            className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            ⏸️
+          </button>
+          <button
+            onClick={() => handlePlaybackCommand("play")}
+            className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            ▶️
+          </button>
+          <button
+            onClick={() => handlePlaybackCommand("next")}
+            className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            ⏭️
+          </button>
+        </div>
         {spotifyEmbed ? (
           <iframe
             src={spotifyEmbed}
@@ -180,6 +234,7 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
             className="rounded-xl shadow-lg"
+            title="Spotify Embedded Player"
           ></iframe>
         ) : (
           <p className="text-gray-500">No song is currently playing.</p>
