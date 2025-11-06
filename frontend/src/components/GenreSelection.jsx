@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
 const GenreSelection = ({onContinue}) => {
   const [genres, setGenres] = useState([]); //implement later using an API/dataset
@@ -42,7 +44,7 @@ const GenreSelection = ({onContinue}) => {
     const fetchGenres = async () => {
       try{
         setLoading(true);
-        const response = await fetch("/api/genres");
+        const response = await fetch(`${BACKEND_URL}/api/genres`,{credentials: "include",});
         if (!response.ok) throw new Error("Failed to fetch genres");
         const data = await response.json();
         setGenres(data.genres || fallbackGenres);

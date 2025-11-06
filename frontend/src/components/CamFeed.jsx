@@ -29,6 +29,9 @@ const CamFeed = ({ onEmotionDetected }) => {
   }, []);
 
   const handleVideoPlay = () => {
+     if (!videoRef.current || videoRef.current.readyState < 2) {
+       return;
+     }
     if (!canvasRef.current.querySelector("canvas")) {
       const canvas = faceapi.createCanvasFromMedia(videoRef.current);
       canvas.style.position = "absolute";
@@ -102,7 +105,7 @@ const CamFeed = ({ onEmotionDetected }) => {
         ref={videoRef}
         autoPlay
         muted
-        onPlay={modelsLoaded ? handleVideoPlay : undefined}
+        onLoadedMetadata={modelsLoaded ? handleVideoPlay : undefined}
         width="640"
         height="480"
         className="rounded-2xl shadow-lg"

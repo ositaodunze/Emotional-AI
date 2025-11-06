@@ -42,7 +42,7 @@ function App() {
       )}
 
       {step === "music" && (
-        <MusicPlayback emotion={emotion} genres={selectedGenres} spotifyUser={spotifyUser} onGenerateNew={() =>{ setEmotion(""); setStep("emotion")}} />
+        <MusicPlayback emotion={emotion} genres={selectedGenre} spotifyUser={spotifyUser} onGenerateNew={() =>{ setEmotion(""); setStep("emotion")}} />
       )}
     </div>
   );

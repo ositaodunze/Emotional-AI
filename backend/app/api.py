@@ -54,10 +54,21 @@ def get_user(request: Request):
     return {"display_name": me["display_name"], "email": me["email"], "product": me["product"]}
 
 @app.get("/api/genres")
-def get_user_genres():
-    top_genres = spotify_api.spotify_client.current_user_top_artists(limit=20)
-    genres = list({genre for artist in top_genres['items'] for genre in artist['genres']})
-    return {"genres": genres[:15]}
+def get_user_genres(request: Request):
+    token = request.cookies.get("spotify_token")
+    if not token:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    sp = spotify_api.get_spotify_client(token)
+
+    try:
+        top_artists = sp.current_user_top_artists(limit=20, time_range="medium_term")
+        genres = list({genre for artist in top_artists["items"] for genre in artist["genres"]})
+        return {"genres": genres[:15] or []}
+    except Exception as e:
+        print("Error fetching user genres:", e)
+        return {"genres": []}
+
     
 @app.post("/api/recommendation")
 async def get_recommendations(request: Request):
