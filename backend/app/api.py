@@ -11,7 +11,6 @@ import json
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
     "http://127.0.0.1:5173"
 ]
 
@@ -46,8 +45,8 @@ def callback(request: Request):
         key="spotify_token_info",
         value=json.dumps(token_info),
         httponly=True,
-        samesite="none",
-        secure=True
+        samesite="lax",
+        secure=False
     )
     return response
 
@@ -96,7 +95,8 @@ async def get_recommendations(request: Request):
     {
         "name": item["name"],
         "artist": item["artists"][0]["name"],
-        "url": item["external_urls"]["spotify"]
+        "url": item["external_urls"]["spotify"],
+        "uri": item["uri"],
     }
     for item in results["tracks"]["items"]
 ]
@@ -108,7 +108,8 @@ async def get_recommendations(request: Request):
             {
                 "name": item["name"],
                 "artist": item["artists"][0]["name"],
-                "url": item["external_urls"]["spotify"]
+                "url": item["external_urls"]["spotify"],
+                "uri": item["uri"],
             }
             for item in fallback_results["tracks"]["items"]
         ]
@@ -125,7 +126,7 @@ async def play(request: Request):
     if not token_info_json:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
 
-    sp = spotify_recc.get_spotify_client(token_info_json)
+    sp = spotify_api.get_spotify_client(token_info_json)
     result = spotify_recc.start_playback(sp, uris)
     return result
 
@@ -134,6 +135,6 @@ def current_track(request: Request):
     token_info_json = request.cookies.get("spotify_token_info")
     if not token_info_json:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    sp = spotify_recc.get_spotify_client(token_info_json)
+    sp = spotify_api.get_spotify_client(token_info_json)
     return spotify_recc.get_current_track(sp)
 

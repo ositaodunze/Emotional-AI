@@ -50,7 +50,7 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
           const firstTrack = tracks[0];
           const firstUri = firstTrack.uri;
 
-          await fetch("http://127.0.0.1:8888/api/play", {
+          await fetch(`${BACKEND_URL}/api/play`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ uris: [firstUri] }),
@@ -162,7 +162,7 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
           <div className="mt-8 flex justify-center">
             <button
               onClick={onGenerateNew}
-              className="bg-indigo-500 hover: bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-md transition"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-md transition"
               >Generate Another Playlist</button>
           </div>
         )}
