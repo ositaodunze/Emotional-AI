@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 const MusicPlayback = ({ emotion, onGenerateNew }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
@@ -28,9 +29,10 @@ const MusicPlayback = ({ emotion, onGenerateNew }) => {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8888/api/recommendation",
+          `${BACKEND_URL}/api/recommendation`,
           {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ emotion }),
           }
