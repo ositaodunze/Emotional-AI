@@ -10,7 +10,7 @@ body{
     justify-content: center;
     align-items: center;
     
-    div{
+    #myH1{
     animation-timing-function: ease-in-out;
     animation-duration: 3s;
     }
