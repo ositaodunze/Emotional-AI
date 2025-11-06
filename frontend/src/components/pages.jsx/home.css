@@ -45,4 +45,9 @@ body{
     animation-duration: 3s;
 }
 
+#CalibrateButton{
+    border: black;
+    border-radius: 12px;
+    padding: 10px;
+}
 
