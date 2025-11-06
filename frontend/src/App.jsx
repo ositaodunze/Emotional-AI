@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import EmotionDetection from "./components/EmotionDetection.jsx";
 import GenreSelection from "./components/GenreSelection.jsx";
@@ -12,7 +12,17 @@ function App() {
   const [spotifyUser, setSpotifyUser] = useState([null]);
   const [step, setStep] = useState("home");
 
-  
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const body = document.body;
+    if (step === "home") {
+      root?.classList.add("home-active");
+      body?.classList.add("home-active");
+    } else {
+      root?.classList.remove("home-active");
+      body?.classList.remove("home-active");
+    }
+  }, [step]);
 
   return (
     <div>
