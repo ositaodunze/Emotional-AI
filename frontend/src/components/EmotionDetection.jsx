@@ -1,42 +1,35 @@
 import React, { useState } from "react";
 import CamFeed from "./CamFeed";
 
-const EmotionDetection = () => {
-    const [pendingEmotion, setPendingEmotion] = useState(null);
-    const [showPrompt, setShowPrompt] = useState(false);
-    const [activeEmotion, setActiveEmotion] = useState(null);
-    const [recommendations, setRecommendations] = useState([]);
+const EmotionDetection = ({onEmotionDetected}) => {
+  const [pendingEmotion, setPendingEmotion] = useState(null);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [activeEmotion, setActiveEmotion] = useState(null);
 
-    const handleEmotionDetected = (emotion) => {
-        //detecting emotion
-      if (emotion !== activeEmotion && !showPrompt) {
-        setPendingEmotion(emotion);
-        setShowPrompt(true);
-      }
-    };
+  // Triggered when the camera detects a new emotion
+  const handleEmotionDetected = (emotion) => {
+    if (emotion !== activeEmotion && !showPrompt) {
+      setPendingEmotion(emotion);
+      setShowPrompt(true);
+    }
+  };
 
-    const handleUseDetectedEmotion = async () => {
-      if (!pendingEmotion) return;
-      setActiveEmotion(pendingEmotion);
-      setShowPrompt(false);
-      try {
-        const response = await fetch("http://localhost:8000/emotion", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ emotion: pendingEmotion }),
-        });
+  // User confirms detected emotion
+  const handleUseDetectedEmotion = () => {
+    if (!pendingEmotion) return;
+    setActiveEmotion(pendingEmotion);
+    setShowPrompt(false);
+  };
 
-        const data = await response.json();
-        setRecommendations(data.recommendations || []);
-      } catch (error) {
-        console.error("Error sending emotion to backend:", error);
-      }
-    };
-     const handleDetectAgain = () => {
+  const handleDetectAgain = () => {
     setPendingEmotion(null);
     setShowPrompt(false);
+  };
+
+  const handleContinue= () => {
+    if (activeEmotion){
+      onEmotionDetected(activeEmotion);
+    }
   };
 
   const emotionLabels = {
@@ -49,9 +42,11 @@ const EmotionDetection = () => {
 
   return (
     <div className="flex flex-col items-center">
+      <h1>FeedMusic</h1>
+      <p>Where your emotions and music collide</p>
       <CamFeed onEmotionDetected={handleEmotionDetected} />
 
-      {/*Confirm Emotion*/}
+      {/* Confirm Emotion Prompt */}
       {showPrompt && pendingEmotion && (
         <div className="mt-4 p-4 bg-white rounded-xl shadow-lg border text-center">
           <h2 className="text-xl font-semibold mb-2">
@@ -77,35 +72,20 @@ const EmotionDetection = () => {
         </div>
       )}
 
-      {/* Step 5: Show active emotion and recommendations */}
-      {activeEmotion && (
-        <div className="mt-6 w-full max-w-md text-center">
-          <h2 className="text-lg font-medium mb-2">
-            Current Emotion: {emotionLabels[activeEmotion]}
-          </h2>
-          {recommendations.length > 0 && (
-            <div className="p-4 rounded-xl shadow-lg bg-gray-100">
-              <h3 className="font-semibold mb-2">Recommended Songs:</h3>
-              <ul>
-                {recommendations.map((song, i) => (
-                  <li key={i}>
-                    <a
-                      href={song.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {song.name} — {song.artist}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      {/*Click button to continue to music player*/}
+      <button
+        onClick={handleContinue}
+        disabled={!activeEmotion}
+        className={`mt-6 px-6 py-2 rounded-full text-white font-semibold ${
+          activeEmotion
+            ? "bg-indigo-600 hover:bg-indigo-700"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
+        Generate your playlist.
+      </button>
     </div>
   );
 };
 
 export default EmotionDetection;
-

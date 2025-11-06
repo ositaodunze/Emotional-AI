@@ -1,12 +1,11 @@
-import React from "react";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
-const GenreSelection = () => {
+const GenreSelection = ({onContinue}) => {
   const [genres, setGenres] = useState([]); //implement later using an API/dataset
   const [selected, setSelected] = useState([]);
-  const allGenres = [
+  const [loading, setLoading] = useState([]);
+  const [error, setError] = useState([]);
+  const fallbackGenres = [
      "Pop",
      "Hip-Hop",
      "R&B",
@@ -39,14 +38,26 @@ const GenreSelection = () => {
      "Lo-fi",
    ];
 
-  /*useEffect(() => {
-    const fetchGenres =async () => {
+  useEffect(() => {
+    const fetchGenres = async () => {
       try{
-        const res = await fetch("",)
+        setLoading(true);
+        const response = await fetch("/api/genres");
+        if (!response.ok) throw new Error("Failed to fetch genres");
+        const data = await response.json();
+        setGenres(data.genres || fallbackGenres);
       }
-    }
-  }
-*/
+      catch (err){
+        console.error("Error getching genres:", err);
+        setError("Could not load genres, showing fallbacks");
+        setGenres(fallbackGenres);
+      } finally {
+        setLoading(false);
+      }
+      };
+      fetchGenres();
+      }, []);
+
   const handleSelect = (genre) => {
     if (selected.includes(genre)) {
       setSelected(selected.filter((g) => g !== genre));
@@ -56,7 +67,7 @@ const GenreSelection = () => {
   };
 
   const handleContinue = () => {
-    alert(`You selected: ${selected.join(", ")}`);
+    if (selected.length === 3) onContinue(selected);
   };
 
   return (
@@ -69,24 +80,32 @@ const GenreSelection = () => {
           Pick up to three genres you love the most.
         </p>
 
+        {/* Show loader or error */}
+        {loading && (
+          <p className="text-center text-gray-300 mb-4 animate-pulse">
+            Loading genres...
+          </p>
+        )}
+        {error && <p className="text-center text-red-400 mb-4">{error}</p>}
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
-          {allGenres.map((genre) => (
-            <Card
+          {(genres.length ? genres : fallbackGenres).map((genre) => (
+            <button
               key={genre}
               onClick={() => handleSelect(genre)}
-              className={`cursor-pointer transition-all text-center p-4 rounded-xl ${
+              className={`transition-all text-center p-4 rounded-xl font-medium ${
                 selected.includes(genre)
                   ? "bg-indigo-600 text-white shadow-lg scale-105"
                   : "bg-white/20 hover:bg-white/30 text-gray-100"
               }`}
             >
-              <CardContent className="p-0 font-medium">{genre}</CardContent>
-            </Card>
+              {genre}
+            </button>
           ))}
         </div>
 
         <div className="flex justify-center">
-          <Button
+          <button
             onClick={handleContinue}
             disabled={selected.length !== 3}
             className={`px-6 py-2 text-lg rounded-full font-semibold transition ${
@@ -96,7 +115,7 @@ const GenreSelection = () => {
             }`}
           >
             Continue
-          </Button>
+          </button>
         </div>
       </div>
     </div>

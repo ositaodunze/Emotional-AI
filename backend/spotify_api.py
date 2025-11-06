@@ -20,23 +20,25 @@ scope = (
 )
 
 # ---- Authenticate with Spotify ----
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id=CLIENT_ID,
-    client_secret=CLIENT_SECRET,
-    redirect_uri=REDIRECT_URI,
-    scope=scope
-))
+def get_auth_url():
+    auth = SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope= scope
+    )
+    return auth.get_authorize_url()
 
 def get_spotify_client(token=None):
-    if token:
-        return spotipy.Spotify(auth=token)
-    return spotipy.Spotify(auth_manager=sp)
-
-def get_auth_url():
-    return sp.get_authorize_url()
+    return spotipy.Spotify(auth=token)
 
 def get_token_from_code(code):
-    return sp.get_access_token(code, as_dict=True)
+    auth = SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope= scope)
+    return auth.get_access_token(code, as_dict=True)
 
 
 
