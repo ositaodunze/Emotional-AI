@@ -3,7 +3,7 @@ import "./home.css";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8888";
 
-const Home = (onAuth) => {
+const Home = ({onAuth}) => {
   return (
     <div className="home-container">
       <nav>
