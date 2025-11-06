@@ -23,17 +23,18 @@
     <p id = "myP">Place your face into the camera to scan for your mood</p>
     <script src="home.jsx"></script>
     </br>
-    <button id = "CalibrateButton" type = "button" >Calibrate your mood</button>
+    <button id = "CalibrateButton" type = "button">Calibrate your Mood</button>
+
     <script>
-        function myFunction(){
-            document.getElementById("CalibrateButton").innerHTML = "Calibrating...";
-        }
+        // Handle both the calibration UI update and Spotify login
+        document.getElementById('CalibrateButton').addEventListener('click', function() {
+            // Update button text (original functionality)
+            this.innerHTML = "Calibrating...";
+            
+            // Redirect to Spotify login
+            window.location.href = 'http://localhost:8000/login';  // Assuming your backend runs on port 8000';
+        });
     </script>
-    
-    
-    <br>
-    <input type="file" accept="video/*" capture="camera" />
-    </br>
 
 
 </body>
