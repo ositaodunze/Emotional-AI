@@ -9,8 +9,8 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    animation-timing-function: ease-in-out;
     animation-duration: 3s;
-    animation-name: slidein;
 
 
 
