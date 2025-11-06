@@ -1,6 +1,6 @@
 @import "tailwindcss";
 body{
-    background-color: #A36EFA;
+    background-color: white;
     background-image: linear-gradient(#A36EFA, #AE18E5);
     font-style: normal ;
     font-size: large;
