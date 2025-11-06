@@ -4,16 +4,25 @@ import EmotionDetection from "./components/EmotionDetection.jsx";
 import GenreSelection from "./components/GenreSelection.jsx";
 import MusicPlayback from "./components/MusicPlayer.jsx";
 import ConnectSpotify from "./components/ConnectSpotify.jsx";
+import Home from "./components/home.jsx";
 
 function App() {
   const [emotion, setEmotion] = useState("");
   const [selectedGenre, setSelectedGenres] = useState([]);
   const [spotifyUser, setSpotifyUser] = useState([null]);
-  const [step, setStep] = useState("connect");
+  const [step, setStep] = useState("home");
+
   
 
   return (
     <div>
+      {step === "home" && (
+        <Home
+          onAuth={() =>{
+            setStep("connect");
+          }}
+        />
+      )}
       {step === "connect" && (
         <ConnectSpotify
           onContinue={(user) => {
@@ -42,7 +51,15 @@ function App() {
       )}
 
       {step === "music" && (
-        <MusicPlayback emotion={emotion} genres={selectedGenre} spotifyUser={spotifyUser} onGenerateNew={() =>{ setEmotion(""); setStep("emotion")}} />
+        <MusicPlayback
+          emotion={emotion}
+          genres={selectedGenre}
+          spotifyUser={spotifyUser}
+          onGenerateNew={() => {
+            setEmotion("");
+            setStep("emotion");
+          }}
+        />
       )}
     </div>
   );
