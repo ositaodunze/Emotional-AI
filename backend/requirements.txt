@@ -1,3 +1,15 @@
-opencv-python
+uvicorn
+fastapi
+spotify
+python-dotenv
+pandas
 numpy
+sklearn
+joblib
+requests
+json
+tensorflow
+pydantic
+
+
 
