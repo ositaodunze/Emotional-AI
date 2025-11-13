@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import './App.css'
+import './login.jsx'
+import './signup.jsx'
 import CamFeed from "./components/CamFeed.jsx";
 import EmotionDetection from './components/EmotionDetection.jsx';
+
 
 function App() {
   const [emotion, setEmotion] = useState("");
