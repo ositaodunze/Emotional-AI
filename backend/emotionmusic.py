@@ -6,7 +6,9 @@ import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
 import joblib
+import os
 
+os.makedirs("models", exist_ok=True)
 df = pd.read_csv("data/dataset.csv")
 
 #Using Russell's Circumplex model of emotion also used by Spotify to characterise tracks
@@ -18,7 +20,7 @@ LOW_ENERGY = 0.4
 HIGH_TEMPO = 140
 HIGH_LOUD = -5
 
-mood_choices = ["Happy","Surprised","Neutral","Sad","Angry"]
+mood_choices = ["happy","surprise","neutral","sad","angry"]
 
 conditions = [
     #defining happy
@@ -62,7 +64,7 @@ model.add(Dense(units=64, activation='relu', name = 'Hidden_Feature_Mapper'))
 model.add(Dense(units=32, activation = 'relu', name='Hidden_Layer_2'))
 model.add(Dense(units=output_dim, activation='linear',name='Output_Feature_Vector'))
 
-model.compile(optimizer='adam',loss='mse',metrics=['mae'])
+model.compile(optimizer=tf.keras.optimizers.Adam(),loss=tf.keras.losses.MeanSquaredError(),metrics=[tf.keras.metrics.MeanAbsoluteError()])
 model.summary()
 
 history = model.fit(X_train,Y_train,epochs=50,batch_size=32,validation_split=0.1,verbose=0)
@@ -70,7 +72,7 @@ history = model.fit(X_train,Y_train,epochs=50,batch_size=32,validation_split=0.1
 #saving encoder, scaler, model
 joblib.dump(ohe,"models/mood_encoder.pkl")
 joblib.dump(scaler_y,"models/feature_scaler.pkl")
-joblib.save("models/mood_to_features.h5")
+model.save("models/mood_to_features.h5")
 
 
 
