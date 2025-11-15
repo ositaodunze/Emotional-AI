@@ -20,7 +20,7 @@ LOW_ENERGY = 0.4
 HIGH_TEMPO = 140
 HIGH_LOUD = -5
 
-mood_choices = ["happy","surprise","neutral","sad","angry"]
+mood_choices = ["happy","surprised","neutral","sad","angry"]
 
 conditions = [
     #defining happy

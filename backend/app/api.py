@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request,APIRouter
+from fastapi import FastAPI,Request,Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
@@ -6,10 +6,10 @@ import spotify_recc
 import spotify_api
 import json
 import requests #useful for recommendations from reccobeats
-import numpy as np 
-import tensorflow as tf
 from app.startup import verify_load_model
 from contextlib import asynccontextmanager
+import pandas as pd
+from typing import Optional, List
 
 #model
 @asynccontextmanager
@@ -87,29 +87,60 @@ def get_user_genres(request: Request):
         print("Error fetching user genres:", e)
         return {"genres": []}
 
-def get_spotify_seed_tracks(sp):
+def get_spotify_seed_tracks(sp,genres):
     try:
-        top_tracks = sp.current_user_top_tracks(limit=30, time_range="short_term")
-        seed_ids = [track['id'] for track in top_tracks['items']]
+        top_tracks = sp.current_user_top_tracks(limit=50, time_range="short_term")
+        all_tracks = top_tracks['items']
 
-        if seed_ids:
-            return seed_ids
+        if not genres:
+            return [track['id'] for track in all_tracks[:5]]
+        
+        artist_ids = set()
+        for track in all_tracks:
+            for artist in track['artists']:
+                artist_ids.add(artist['id'])
+        
+        artists_data = sp.artists(list(artist_ids))
+        artist_genre_map = {}
+        for artist in artists_data['artists']:
+            artist_genre_map[artist['id']] = set(artist['genres'])
+            
+        filtered_seed_ids = []
+        target_genres = set(genres)
+
+        for track in all_tracks:
+            track_artist_ids = [artist['id'] for artist in track['artists']]
+            
+            # Check if any artist's genre intersects with the target genres
+            is_genre_match = False
+            for artist_id in track_artist_ids:
+                if artist_genre_map.get(artist_id) and artist_genre_map.get(artist_id).intersection(target_genres):
+                    is_genre_match = True
+                    break
+            
+            if is_genre_match:
+                filtered_seed_ids.append(track['id'])
+                if len(filtered_seed_ids) >= 5:
+                    break
+        
+        return filtered_seed_ids if filtered_seed_ids else [track['id'] for track in all_tracks[:5]] # Fallback to top 5
     except Exception as e:
         print(f"Error fetching Spotify top tracks for seeds:",e)
-        pass
+        return []
         
 def predict_track_features(app,mood):
     ohe = app.state.ohe 
     scaler_y = app.state.scaler_y
     music_model = app.state.music_model
 
-    X = ohe.transform([[mood]])
+    mood_df = pd.DataFrame([mood],columns=['redefined_mood'])
+    X = ohe.transform(mood_df)
     pred_scaled = music_model.predict(X)
     features = scaler_y.inverse_transform(pred_scaled)[0] 
     return features 
 
 def call_reccobeats(feature_params,seed_ids,limit=20):
-    filtered_keys = {"energy", "valence", "tempo", "loudness"}
+    filtered_keys = {"energy", "valence"}
     filtered_features = {}
     for k, v in feature_params.items():
         if k in filtered_keys:
@@ -118,9 +149,9 @@ def call_reccobeats(feature_params,seed_ids,limit=20):
             else:
                 filtered_features[k] = round(v, 4)
 
-    seeds_csv = ",".join(seed_ids[:5])
+    seeds = ",".join(seed_ids[:5])
     payload ={
-        "size":limit,"seeds":seeds_csv, **filtered_features
+        "size":limit,"seeds":seeds, **filtered_features
     }
 
 
@@ -131,7 +162,21 @@ def call_reccobeats(feature_params,seed_ids,limit=20):
         response = requests.get(RECCOBEATS_BASE,params=payload,timeout=10)
         print(f"DEBUG - Full URL: {response.url}")
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        print("\n===== RECCOBEATS DEBUG RESPONSE =====")
+        print("Raw JSON:", json.dumps(data, indent=2))
+
+        # If tracks are present, print the first few nicely
+        if "content" in data:
+            print("\nReturned tracks (first 5):")
+            for t in data["content"][:5]:
+                print(f"- {t.get('trackTitle', 'Unknown')} by {t.get('artists', [{}])[0].get('name', 'Unknown')}")
+
+        else:
+            print("⚠ No 'content' key in ReccoBeats response")
+
+        return data
+
     except requests.exceptions.HTTPError as e:
         print(f"ReccoBeats HTTP Error: {e}")
         print(f"URL: {e.response.url if e.response else 'No URL'}")
@@ -159,17 +204,16 @@ def convert_to_reccobeats(predicted_features,feature_names):
 
     return params
 
-@app.post("/api/recommendation")
-async def get_recommendations(request: Request):
-    body = await request.json()
-    emotion = body.get("emotion")
+@app.get("/api/recommendation")
+async def get_recommendations(request: Request,emotion: str = Query(..., description="The detected or confirmed emotion"),
+    genres: Optional[List[str]] = Query(None, description="List of user's top genres")):
 
     token_info_json = request.cookies.get("spotify_token_info")
     if not token_info_json:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
     
     sp = spotify_api.get_spotify_client(token_info_json)
-    seed_track_ids = get_spotify_seed_tracks(sp)
+    seed_track_ids = get_spotify_seed_tracks(sp,genres=genres)
     if not seed_track_ids:
         return JSONResponse({"error": "Could not determine seed tracks for ReccoBeats."}, status_code=500)
     
@@ -179,31 +223,45 @@ async def get_recommendations(request: Request):
     feature_params = convert_to_reccobeats(predicted_features, numeric_columns)
 
     rb_response = call_reccobeats(feature_params,limit=20,seed_ids = seed_track_ids)
-    if not rb_response or "tracks" not in rb_response:
+    if not rb_response or "content" not in rb_response:
         return JSONResponse({"error": "ReccoBEats returned no tracks"}, status_code=500)
     
-    track_names = [t["name"] for t in rb_response["tracks"]]
     #use results to search on spotify
    
     final_recommendations = []
 
-    for name in track_names:
+    for track in rb_response["content"]:
         try:
-            results = sp.search(q=name, type="track", limit=1)
-            items = results["tracks"]["items"]
-            if items:
-                item = items[0]
-                final_recommendations.append({
-                "name": item["name"],
-                "artist": item["artists"][0]["name"],
-                "url": item["external_urls"]["spotify"],
-                "uri": item["uri"],
+            spotify_url = track.get("href")
+            if not spotify_url or "track/" not in spotify_url:
+                continue
+            
+            spotify_id = spotify_url.split("track/")[-1].split("?")[0].strip()
+            if not spotify_id or len(spotify_id) < 10:
+                continue 
+
+            name = track.get("trackTitle", "Unknown Track")
+            artists_data = track.get("artists",[])
+            artist_name = artists_data[0].get("name") if artists_data else "Unknown Artist"
+
+            final_recommendations.append({
+                "name": name,
+                "artist": artist_name,
+                "url": spotify_url,
+                "uri": f"spotify:track:{spotify_id}",
                 })
 
+                
         except Exception as e:
             print("Failed to search", e)
+            continue
     if not final_recommendations:
-            fallback = sp.search(q="mood booster",type="track",limit=10)
+            
+            search_query = f"{emotion} music"
+            if genres and genres:
+                search_query += f" genre:{genres[0]}"
+
+            fallback = sp.search(q=search_query,type="track",limit=10)
             final_recommendations = [
                 {
                     "name": item["name"],

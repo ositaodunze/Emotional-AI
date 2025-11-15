@@ -3,7 +3,9 @@ load_dotenv()
 
 def start_playback(sp, uris):
     devices = sp.devices()["devices"]
-    if not devices:
+    web_player = next((d for d in devices if d["type"] == "Computer"), None)
+
+    if not web_player:
         return {"error": "No active Spotify devices found."}
 
     device_id = devices[0]["id"]

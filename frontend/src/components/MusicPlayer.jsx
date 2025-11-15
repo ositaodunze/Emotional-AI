@@ -33,7 +33,7 @@ const SpotifyIcon = () => (
   </svg>
 );
 
-const MusicPlayer = ({ emotion, onGenerateNew }) => {
+const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [selectedTracks, setSelectedTracks] = useState([]);
@@ -86,13 +86,19 @@ const MusicPlayer = ({ emotion, onGenerateNew }) => {
       setError(null);
       setRecommendations([]);
 
+      const params = new URLSearchParams({ emotion: emotion });
+      if (genres && genres.length > 0){
+        genres.forEach(g => params.append('genres', g));
+      }
+      
       try {
-        const response = await fetch(`${BACKEND_URL}/api/recommendation`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ emotion }),
-        });
+        const response = await fetch(
+          `${BACKEND_URL}/api/recommendation?${params.toString()}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
@@ -102,8 +108,9 @@ const MusicPlayer = ({ emotion, onGenerateNew }) => {
 
         if (tracks.length > 0) {
           const firstTrack = tracks[0];
-          setCurrentTrack(firstTrack);
-          const firstUri = firstTrack.uri;
+          const parsedTrack = parseTrackData(firstTrack);
+          setCurrentTrack(parsedTrack);
+          const firstUri = parsedTrack.uri;
 
           await fetch(`${BACKEND_URL}/api/play`, {
             method: "POST",
@@ -113,7 +120,9 @@ const MusicPlayer = ({ emotion, onGenerateNew }) => {
           });
 
           const trackId = firstUri.split(":")[2];
-          setSpotifyEmbed(`https://open.spotify.com/embed/track/${trackId}`);
+          setSpotifyEmbed(
+            `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&autoplay=1`
+          );
           setIsPlaying(true);
         }
       } catch (err) {
@@ -125,13 +134,38 @@ const MusicPlayer = ({ emotion, onGenerateNew }) => {
     };
 
     fetchRecommendations();
-  }, [emotion]);
+  }, [emotion,genres]);
+
+  const parseTrackData = (track) => {
+    const artistName =
+      track.artists && Array.isArray(track.artists) && track.artists.length > 0
+        ? track.artists[0].name
+        : "Unknown Artist";
+
+    return {
+      id: track.uri?.split(":")[2] || null,
+      name: track.name || "Unknown Track",
+      artist: track.artist || "Unknown Artist",
+      url: track.url || null,
+      uri: track.uri || null,
+    };
+  };
 
   const playTrack = (track) => {
-    setCurrentTrack(track);
-    const trackId = track.uri.split(":")[2];
-    setSpotifyEmbed(`https://open.spotify.com/embed/track/${trackId}`);
+    const parsedTrack = parseTrackData(track);
+    setCurrentTrack(parsedTrack);
+    const trackId = parsedTrack.uri.split(":")[2];
+    setSpotifyEmbed(
+      `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&autoplay=1`
+    );
     setIsPlaying(true);
+
+    fetch(`${BACKEND_URL}/api/play`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uris: [parsedTrack.uri] }),
+      credentials: "include",
+    });
   };
 
   const handleSavePlaylist = () => {
