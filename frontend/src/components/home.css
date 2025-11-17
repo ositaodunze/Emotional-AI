@@ -1,0 +1,94 @@
+/* Override root constraints when home is active */
+#root.home-active {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+body.home-active {
+    display: block !important;
+    place-items: unset !important;
+}
+
+.home-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: white;
+    background-image: linear-gradient(#A36EFA, #AE18E5);
+    font-style: normal;
+    font-size: large;
+    font-weight: normal;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.home-container ul.topnav {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333333;
+}
+
+.home-container ul.topnav li a {
+    display: block;
+    color: #f1f1f1;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.home-container ul.topnav li a:hover {
+    background-color: #dddddd;
+    color: black;
+}
+
+.home-container #myH1 {
+    animation-timing-function: ease-in-out;
+    animation-duration: 3s;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-top: 2.5rem;
+}
+
+.home-container #AuthButton,
+.home-container .auth-btn {
+    border: black;
+    border-radius: 12px;
+    padding: 10px 24px;
+    background-color: #22c55e;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.home-container #AuthButton:hover,
+.home-container .auth-btn:hover {
+    background-color: #16a34a;
+    transform: scale(1.05);
+}
+
+.home-container #AuthButton:active,
+.home-container .auth-btn:active {
+    background-color: #15803d;
+    transform: scale(0.98);
+}
+
+
+
