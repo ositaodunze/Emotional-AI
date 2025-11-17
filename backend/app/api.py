@@ -100,10 +100,22 @@ def get_spotify_seed_tracks(sp,genres):
             for artist in track['artists']:
                 artist_ids.add(artist['id'])
         
-        artists_data = sp.artists(list(artist_ids))
+        # Spotify API limit: max 50 artist IDs per request
+        artist_ids_list = list(artist_ids)
+        
+        # Batch requests if we have more than 50 artists
         artist_genre_map = {}
-        for artist in artists_data['artists']:
-            artist_genre_map[artist['id']] = set(artist['genres'])
+        if len(artist_ids_list) > 50:
+            # Process in batches of 50
+            for i in range(0, len(artist_ids_list), 50):
+                batch = artist_ids_list[i:i+50]
+                artists_data = sp.artists(batch)
+                for artist in artists_data['artists']:
+                    artist_genre_map[artist['id']] = set(artist['genres'])
+        else:
+            artists_data = sp.artists(artist_ids_list)
+            for artist in artists_data['artists']:
+                artist_genre_map[artist['id']] = set(artist['genres'])
             
         filtered_seed_ids = []
         target_genres = set(genres)
