@@ -116,7 +116,9 @@ const GenreSelection = ({onContinue}) => {
                 : "bg-gray-400 cursor-not-allowed text-gray-700"
             }`}
           >
-            Continue
+            {selected.length === 3
+              ? "Continue"
+              : `Select ${3 - selected.length} more`}
           </button>
         </div>
       </div>
