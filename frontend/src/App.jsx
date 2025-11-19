@@ -4,16 +4,16 @@ import EmotionDetection from "./components/EmotionDetection.jsx";
 import GenreSelection from "./components/GenreSelection.jsx";
 import MusicPlayback from "./components/MusicPlayer.jsx";
 import ConnectSpotify from "./components/ConnectSpotify.jsx";
-import Home from "./components/home.jsx";
+import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
 import SignUp from "./components/signup.jsx";
-import EmotionDetection from './components/EmotionDetection.jsx';
 
 
 function App() {
   const [emotion, setEmotion] = useState("");
   const [selectedGenre, setSelectedGenres] = useState([]);
   const [spotifyUser, setSpotifyUser] = useState([null]);
+  
   const [step, setStep] = useState("home");
 
   useEffect(() => {
@@ -37,6 +37,23 @@ function App() {
           }}
         />
       )}
+
+     {step === "login" && (
+        <Login
+          onSignUp={() =>{
+            setStep("signup")
+          }}
+        />
+     )}
+
+     {step === "signup" && (
+        <SignUp
+          onLogin={() =>{
+            setStep("login")
+          }}
+        />
+     )}
+
       {step === "connect" && (
         <ConnectSpotify
           onContinue={(user) => {
