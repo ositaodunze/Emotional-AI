@@ -13,7 +13,6 @@ function App() {
   const [emotion, setEmotion] = useState("");
   const [selectedGenre, setSelectedGenres] = useState([]);
   const [spotifyUser, setSpotifyUser] = useState([null]);
-  
   const [step, setStep] = useState("home");
 
   useEffect(() => {
@@ -32,16 +31,22 @@ function App() {
     <div>
       {step === "home" && (
         <Home
-          onAuth={() =>{
-            setStep("connect");
+          onLoginClick={() =>{
+            setStep("login")
           }}
+          onSignUpClick={() =>{
+            setStep("signup")
+          }}
+
         />
       )}
-
-     {step === "login" && (
+      {step === "login" && (
         <Login
           onSignUp={() =>{
             setStep("signup")
+          }}
+          onLoginSuccess={() =>{
+            setStep("connect")
           }}
         />
      )}
@@ -53,7 +58,6 @@ function App() {
           }}
         />
      )}
-
       {step === "connect" && (
         <ConnectSpotify
           onContinue={(user) => {

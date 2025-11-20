@@ -1,61 +1,73 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import "../auth.css";
 
-export default function Login() {
-  const navigate = useNavigate();
+export default function Login({ onSignUp, onLoginSuccess }) {
   const [form, setForm] = useState({ email: "", password: "" });
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) return toast.error("Please fill in all fields");
-    toast.success("Signed in!");
-    navigate("/"); // or navigate("/player") later
+    // For now, just pretend login works
+    alert(`Logged in as ${form.email}`);
+    if (onLoginSuccess) onLoginSuccess(); // App can move to "connect" or something later
   };
 
   return (
-    <div>
-      <div>
-        <div>
-          <h1>Feed Music AI</h1>
-          <p>Sign in to continue</p>
-        </div>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1 className="auth-title">Feed Music AI</h1>
+        <p className="auth-subtitle">Sign in to continue</p>
 
-        <div>
-          <form onSubmit={onSubmit}>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@school.edu"
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-              />
-            </div>
-
-            <Button type="submit">
-              Sign In
-            </Button>
-          </form>
-
-          <div>
-            <Link to="/signup">
-              Need an account? Create one
-            </Link>
+        <form onSubmit={onSubmit}>
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="auth-input"
+              placeholder="you@school.edu"
+              required
+              value={form.email}
+              onChange={(e) =>
+                setForm({ ...form, email: e.target.value })
+              }
+            />
           </div>
-        </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              className="auth-input"
+              placeholder="••••••••"
+              required
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+            />
+          </div>
+
+          <button type="submit" className="auth-primary-btn">
+            Sign In
+          </button>
+        </form>
+
+        <button
+          type="button"
+          className="auth-link-btn"
+          onClick={onSignUp}
+        >
+          Need an account? <span>Create one</span>
+        </button>
+
+        <p className="auth-footer">
+          By continuing, you agree to our Terms of Service and Privacy Policy.
+        </p>
       </div>
     </div>
   );

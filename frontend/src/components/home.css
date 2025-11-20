@@ -1,94 +1,156 @@
-/* Override root constraints when home is active */
+/* Keep your root overrides */
 #root.home-active {
     max-width: none !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
-}
-
-body.home-active {
+  }
+  
+  body.home-active {
     display: block !important;
     place-items: unset !important;
-}
-
-.home-container {
+  }
+  
+  /* Full-screen gradient background like the mockup */
+  .home-container {
     width: 100%;
     min-height: 100vh;
-    background-color: white;
-    background-image: linear-gradient(#A36EFA, #AE18E5);
-    font-style: normal;
-    font-size: large;
-    font-weight: normal;
-    font-family: sans-serif;
+    background: radial-gradient(circle at top, #43126b 0, #050016 55%, #020010 100%);
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    text-align: center;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
-
-.home-container ul.topnav {
-    width: 100%;
     justify-content: center;
     align-items: center;
-    display: flex;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    background-color: #333333;
-}
-
-.home-container ul.topnav li a {
-    display: block;
-    color: #f1f1f1;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.home-container ul.topnav li a:hover {
-    background-color: #dddddd;
-    color: black;
-}
-
-.home-container #myH1 {
-    animation-timing-function: ease-in-out;
-    animation-duration: 3s;
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-top: 2.5rem;
-}
-
-.home-container #AuthButton,
-.home-container .auth-btn {
-    border: black;
-    border-radius: 12px;
-    padding: 10px 24px;
-    background-color: #22c55e;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
     color: white;
-    font-size: 1.1rem;
-    font-weight: bold;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  
+  /* Centered content block */
+  .home-content {
+    max-width: 420px;
+    text-align: center;
+  }
+  
+  /* Title + subtitles */
+  .home-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #f472ff;
+    margin-bottom: 4px;
+  }
+  
+  .home-tagline {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    margin-bottom: 2px;
+  }
+  
+  .home-subtitle {
+    font-size: 0.95rem;
+    opacity: 0.7;
+    margin-bottom: 24px;
+  }
+  
+  /* Frame wrapper (card) */
+  .frame-wrapper {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0 auto;
+  }
+  
+  /* Optional video behind frame */
+  .frame-video {
+    width: 100%;
+    height: 100%;
+    border-radius: 32px;
+    object-fit: cover;
+    filter: brightness(0.45);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+  
+  /* Neon glowing outline */
+  .frame-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 32px;
+    border: 3px solid #8b5cf6;
+    box-shadow:
+      0 0 35px rgba(168, 85, 247, 0.75),
+      0 0 70px rgba(59, 130, 246, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  
+  /* Inner smiley + text */
+  .frame-inner {
+    text-align: center;
+  }
+  
+  .frame-smiley {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  
+  .frame-caption {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  /* Buttons row */
+  .home-buttons {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+  }
+  
+  /* Base button style */
+  .btn {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 26px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 2rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.home-container #AuthButton:hover,
-.home-container .auth-btn:hover {
-    background-color: #16a34a;
-    transform: scale(1.05);
-}
-
-.home-container #AuthButton:active,
-.home-container .auth-btn:active {
-    background-color: #15803d;
-    transform: scale(0.98);
-}
+    transition: transform 0.15s ease, box-shadow 0.15s ease,
+      background 0.15s ease, color 0.15s ease;
+  }
+  
+  /* Pink primary button */
+  .btn.primary {
+    background: linear-gradient(135deg, #f472ff, #d946ef);
+    color: #1b0424;
+    box-shadow: 0 10px 30px rgba(217, 70, 239, 0.6);
+  }
+  
+  .btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 40px rgba(217, 70, 239, 0.7);
+  }
+  
+  /* Dark guest button */
+  .btn.secondary {
+    background: #050816;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+  }
+  
+  .btn.secondary:hover {
+    background: #111827;
+  }
+  
+  /* Footer text */
+  .home-footer {
+    margin-top: 22px;
+    font-size: 0.74rem;
+    opacity: 0.6;
+  }
 
 
 
