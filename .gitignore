@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.Python
+env/
+venv/
+VENV/
+my_env/
+.venv/
+
+# pip
+pip-wheel-metadata/
+pip-log.txt
+
+# Pytest
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+
+# Editor files
+*.swp
+*.swo
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store
