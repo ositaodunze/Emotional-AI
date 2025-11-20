@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "24": "^0.0.0",
     "@tailwindcss/vite": "^4.1.16",
     "@vladmandic/face-api": "^1.7.15",
     "face-api.js": "^0.22.2",
