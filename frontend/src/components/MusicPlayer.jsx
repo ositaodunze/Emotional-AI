@@ -33,7 +33,7 @@ const SpotifyIcon = () => (
   </svg>
 );
 
-const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
+const MusicPlayer = ({ emotion, onGenerateNew, selectedArtist }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [selectedTracks, setSelectedTracks] = useState([]);
@@ -44,35 +44,35 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const emotionData = {
-    happy: { 
-      label: "Happy", 
+    happy: {
+      label: "Happy",
       emoji: "😊",
       description: "Uplifting vibes to amplify your joy",
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     },
-    sad: { 
-      label: "Sad", 
+    sad: {
+      label: "Sad",
       emoji: "😢",
       description: "Gentle melodies for reflection",
-      gradient: "linear-gradient(135deg, #667eea 0%, #4c51bf 100%)"
+      gradient: "linear-gradient(135deg, #667eea 0%, #4c51bf 100%)",
     },
-    angry: { 
-      label: "Angry", 
+    angry: {
+      label: "Angry",
       emoji: "😠",
       description: "Intense beats to match your energy",
-      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
     },
-    surprised: { 
-      label: "Surprised", 
+    surprised: {
+      label: "Surprised",
       emoji: "😮",
       description: "Dynamic tracks for unexpected moments",
-      gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+      gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
     },
-    neutral: { 
-      label: "Neutral", 
+    neutral: {
+      label: "Neutral",
       emoji: "😐",
       description: "Balanced tunes for a calm state of mind",
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     },
   };
 
@@ -87,10 +87,10 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
       setRecommendations([]);
 
       const params = new URLSearchParams({ emotion: emotion });
-      if (genres && genres.length > 0){
-        genres.forEach(g => params.append('genres', g));
+      if (selectedArtist && selectedArtist.length > 0) {
+        selectedArtist.forEach((artist) => params.append("artists", artist));
       }
-      
+
       try {
         const response = await fetch(
           `${BACKEND_URL}/api/recommendation?${params.toString()}`,
@@ -100,7 +100,8 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
           }
         );
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
         const tracks = data.recommendations || [];
@@ -134,7 +135,7 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
     };
 
     fetchRecommendations();
-  }, [emotion,genres]);
+  }, [emotion, selectedArtist]);
 
   const parseTrackData = (track) => {
     const artistName =
@@ -170,118 +171,152 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
 
   const handleSavePlaylist = () => {
     const name = playlistName || `${currentEmotion.label} Mix`;
-    console.log("Saving playlist:", name, recommendations.map(r => r.uri));
+    console.log(
+      "Saving playlist:",
+      name,
+      recommendations.map((r) => r.uri)
+    );
     alert(`Playlist "${name}" saved with ${recommendations.length} tracks!`);
   };
 
-  // Format duration (mock data for now)
-  const formatDuration = (index) => {
-    const durations = ["3:45", "4:12", "3:28", "3:56", "4:33"];
-    return durations[index % durations.length];
+  const formatDuration = (ms) => {
+    if (!ms) return "0:00";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
     const originalStyle = document.body.style.cssText;
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    document.body.style.overflow = 'hidden';
-    
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+    document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.cssText = originalStyle;
     };
   }, []);
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'linear-gradient(to bottom, #1a1a2e 0%, #0f0f1e 100%)',
-      color: 'white',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "linear-gradient(to bottom, #1a1a2e 0%, #0f0f1e 100%)",
+        color: "white",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {/* Hero Section */}
-      <div style={{
-        background: currentEmotion.gradient,
-        padding: '30px 0',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        flexShrink: 0
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))',
-          zIndex: 1
-        }}></div>
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{
-            fontSize: '60px',
-            marginBottom: '12px',
-            filter: 'drop-shadow(0 10px 40px rgba(0,0,0,0.3))'
-          }}>{currentEmotion.emoji}</div>
-          <h1 style={{
-            fontSize: '36px',
-            fontWeight: '900',
-            marginBottom: '8px',
-            letterSpacing: '-1px'
-          }}>You're Feeling {currentEmotion.label}</h1>
-          <p style={{
-            fontSize: '16px',
-            opacity: 0.9,
-            fontWeight: '400'
-          }}>{currentEmotion.description}</p>
+      <div
+        style={{
+          background: currentEmotion.gradient,
+          padding: "30px 0",
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))",
+            zIndex: 1,
+          }}
+        ></div>
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <div
+            style={{
+              fontSize: "60px",
+              marginBottom: "12px",
+              filter: "drop-shadow(0 10px 40px rgba(0,0,0,0.3))",
+            }}
+          >
+            {currentEmotion.emoji}
+          </div>
+          <h1
+            style={{
+              fontSize: "36px",
+              fontWeight: "900",
+              marginBottom: "8px",
+              letterSpacing: "-1px",
+            }}
+          >
+            You're Feeling {currentEmotion.label}
+          </h1>
+          <p
+            style={{
+              fontSize: "16px",
+              opacity: 0.9,
+              fontWeight: "400",
+            }}
+          >
+            {currentEmotion.description}
+          </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        padding: '30px',
-        gap: '30px',
-        maxWidth: '1400px',
-        margin: '0 auto',
-        width: '100%',
-        minHeight: 0
-      }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          padding: "30px",
+          gap: "30px",
+          maxWidth: "1400px",
+          margin: "0 auto",
+          width: "100%",
+          minHeight: 0,
+        }}
+      >
         {/* Player Section */}
-        <div style={{
-          flex: '0 0 420px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%)',
-            borderRadius: '20px',
-            padding: '30px',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <div style={{
-              width: '100%',
-              aspectRatio: '1',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
+        <div
+          style={{
+            flex: "0 0 420px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              background: "linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%)",
+              borderRadius: "20px",
+              padding: "30px",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "1",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                borderRadius: "12px",
+                marginBottom: "24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
               {spotifyEmbed ? (
                 <iframe
                   src={spotifyEmbed}
@@ -289,96 +324,136 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
                   height="100%"
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   loading="lazy"
-                  style={{ border: 'none', borderRadius: '12px' }}
+                  style={{ border: "none", borderRadius: "12px" }}
                 />
               ) : (
-                <div style={{ textAlign: 'center' }}>
+                <div style={{ textAlign: "center" }}>
                   <PlayIcon />
-                  <p style={{ marginTop: '20px', opacity: 0.6 }}>Select a track to play</p>
+                  <p style={{ marginTop: "20px", opacity: 0.6 }}>
+                    Select a track to play
+                  </p>
                 </div>
               )}
             </div>
 
             {currentTrack && (
               <>
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={{
-                    fontSize: '24px',
-                    fontWeight: '700',
-                    marginBottom: '8px'
-                  }}>{currentTrack.name}</div>
-                  <div style={{
-                    fontSize: '16px',
-                    opacity: 0.7
-                  }}>{currentTrack.artist}</div>
+                <div style={{ marginBottom: "20px" }}>
+                  <div
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: "700",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {currentTrack.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      opacity: 0.7,
+                    }}
+                  >
+                    {currentTrack.artist}
+                  </div>
                 </div>
 
-                <div style={{
-                  height: '4px',
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: '2px',
-                  overflow: 'hidden',
-                  marginBottom: '8px'
-                }}>
-                  <div style={{
-                    height: '100%',
-                    background: '#1db954',
-                    width: '30%',
-                    transition: 'width 0.3s'
-                  }}></div>
+                <div
+                  style={{
+                    height: "4px",
+                    background: "rgba(255,255,255,0.1)",
+                    borderRadius: "2px",
+                    overflow: "hidden",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      background: "#1db954",
+                      width: "30%",
+                      transition: "width 0.3s",
+                    }}
+                  ></div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', opacity: 0.6, marginBottom: '20px' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: "12px",
+                    opacity: 0.6,
+                    marginBottom: "20px",
+                  }}
+                >
                   <span>1:23</span>
                   <span>3:45</span>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '24px',
-                  marginBottom: '24px'
-                }}>
-                  <button style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'white',
-                    opacity: 0.7,
-                    transition: 'opacity 0.2s'
-                  }}>
-                    <svg style={{ width: '20px', height: '20px', transform: 'rotate(180deg)' }} fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M5 4l10 8-10 8V4zm11 0h3v16h-3V4z"/>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "24px",
+                    marginBottom: "24px",
+                  }}
+                >
+                  <button
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "white",
+                      opacity: 0.7,
+                      transition: "opacity 0.2s",
+                    }}
+                  >
+                    <svg
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        transform: "rotate(180deg)",
+                      }}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 4l10 8-10 8V4zm11 0h3v16h-3V4z" />
                     </svg>
                   </button>
-                  <button 
+                  <button
                     style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '50%',
-                      background: '#1db954',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'transform 0.2s, background 0.2s',
-                      color: 'white'
+                      width: "64px",
+                      height: "64px",
+                      borderRadius: "50%",
+                      background: "#1db954",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "transform 0.2s, background 0.2s",
+                      color: "white",
                     }}
                     onClick={() => setIsPlaying(!isPlaying)}
-                    onMouseOver={e => e.currentTarget.style.transform = 'scale(1.1)'}
-                    onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.1)")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
                   >
                     {isPlaying ? <PauseIcon /> : <PlayIcon />}
                   </button>
-                  <button style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'white',
-                    opacity: 0.7,
-                    transition: 'opacity 0.2s'
-                  }}>
+                  <button
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "white",
+                      opacity: 0.7,
+                      transition: "opacity 0.2s",
+                    }}
+                  >
                     <SkipIcon />
                   </button>
                 </div>
@@ -391,63 +466,71 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
               value={playlistName}
               onChange={(e) => setPlaylistName(e.target.value)}
               style={{
-                width: '100%',
-                padding: '12px 16px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '14px',
-                outline: 'none',
-                marginBottom: '16px'
+                width: "100%",
+                padding: "12px 16px",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "8px",
+                color: "white",
+                fontSize: "14px",
+                outline: "none",
+                marginBottom: "16px",
               }}
             />
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <button 
+            <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+              <button
                 onClick={handleSavePlaylist}
                 style={{
                   flex: 1,
-                  padding: '12px 24px',
-                  borderRadius: '100px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s, background 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  background: '#1db954',
-                  color: 'white'
+                  padding: "12px 24px",
+                  borderRadius: "100px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  transition: "transform 0.2s, background 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  background: "#1db954",
+                  color: "white",
                 }}
-                onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.05)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
                 <SpotifyIcon />
                 Save to Spotify
               </button>
-              <button 
+              <button
                 onClick={onGenerateNew}
                 style={{
                   flex: 1,
-                  padding: '12px 24px',
-                  borderRadius: '100px',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  cursor: 'pointer',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s, background 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  background: 'transparent',
-                  color: 'white'
+                  padding: "12px 24px",
+                  borderRadius: "100px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  transition: "transform 0.2s, background 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  background: "transparent",
+                  color: "white",
                 }}
-                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
               >
                 <RefreshIcon />
                 Refresh
@@ -457,93 +540,123 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
         </div>
 
         {/* Tracks Section - FIXED SCROLLING */}
-        <div style={{
-          flex: 1,
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{ marginBottom: '24px', flexShrink: 0 }}>
-            <h2 style={{
-              fontSize: '28px',
-              fontWeight: '700',
-              marginBottom: '8px'
-            }}>Recommended for You</h2>
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ marginBottom: "24px", flexShrink: 0 }}>
+            <h2
+              style={{
+                fontSize: "28px",
+                fontWeight: "700",
+                marginBottom: "8px",
+              }}
+            >
+              Recommended for You
+            </h2>
             <p style={{ opacity: 0.6 }}>Based on your {emotion} mood</p>
           </div>
 
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            paddingRight: '20px',
-            minHeight: 0
-          }}>
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              paddingRight: "20px",
+              minHeight: 0,
+            }}
+          >
             {loading && (
-              <div style={{ textAlign: 'center', padding: '60px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  border: '3px solid rgba(29,185,84,0.3)',
-                  borderTopColor: '#1db954',
-                  borderRadius: '50%',
-                  margin: '0 auto 20px',
-                  animation: 'spin 1s linear infinite'
-                }}></div>
+              <div style={{ textAlign: "center", padding: "60px" }}>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    border: "3px solid rgba(29,185,84,0.3)",
+                    borderTopColor: "#1db954",
+                    borderRadius: "50%",
+                    margin: "0 auto 20px",
+                    animation: "spin 1s linear infinite",
+                  }}
+                ></div>
                 <p style={{ opacity: 0.6 }}>Finding perfect tracks...</p>
               </div>
             )}
 
             {!loading && recommendations.length > 0 && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                paddingBottom: '40px'
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  paddingBottom: "40px",
+                }}
+              >
                 {recommendations.map((track, index) => (
                   <div
                     key={index}
                     style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      borderRadius: '8px',
-                      padding: '16px 20px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      transition: 'background 0.2s',
-                      border: '1px solid transparent'
+                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: "8px",
+                      padding: "16px 20px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      transition: "background 0.2s",
+                      border: "1px solid transparent",
                     }}
                     onClick={() => playTrack(track)}
-                    onMouseOver={e => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                      e.currentTarget.style.borderColor = 'rgba(29,185,84,0.5)';
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background =
+                        "rgba(255,255,255,0.08)";
+                      e.currentTarget.style.borderColor = "rgba(29,185,84,0.5)";
                     }}
-                    onMouseOut={e => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                      e.currentTarget.style.borderColor = 'transparent';
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background =
+                        "rgba(255,255,255,0.03)";
+                      e.currentTarget.style.borderColor = "transparent";
                     }}
                   >
-                    <div style={{
-                      fontSize: '14px',
-                      opacity: 0.5,
-                      width: '20px'
-                    }}>{index + 1}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: '500',
-                        marginBottom: '4px'
-                      }}>{track.name}</div>
-                      <div style={{
-                        fontSize: '14px',
-                        opacity: 0.6
-                      }}>{track.artist}</div>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        opacity: 0.5,
+                        width: "20px",
+                      }}
+                    >
+                      {index + 1}
                     </div>
-                    <div style={{
-                      fontSize: '14px',
-                      opacity: 0.6
-                    }}>{formatDuration(index)}</div>
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: "500",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        {track.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          opacity: 0.6,
+                        }}
+                      >
+                        {track.artist}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        opacity: 0.6,
+                      }}
+                    >
+                      {formatDuration(track.duration_ms)}
+                    </div>
                   </div>
                 ))}
               </div>

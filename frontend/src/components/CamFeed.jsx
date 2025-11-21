@@ -25,6 +25,7 @@ const CamFeed = ({ onEmotionDetected }) => {
     return () => {
       // Cleanup on unmount: clear interval
       if (intervalId) clearInterval(intervalId);
+      
     };
   }, []);
 

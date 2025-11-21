@@ -58,8 +58,8 @@ cd Emotional-Ai
 - Create and activate virtual environment: 
 ```
 python -m venv .venv
-Windows: .venv\Scripts\activate
-Linux/macOS: source .venv/bin/activate
+.venv\Scripts\activate  #Windows
+source .venv/bin/activate  #Linux/macOS
 ```
 
 - Install dependencies:
