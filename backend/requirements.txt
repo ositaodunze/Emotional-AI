@@ -1,6 +1,16 @@
-opencv-python
-numpy
+uvicorn
+fastapi
+spotify
 python-dotenv
-spotipy
-spotipy
+pandas
+numpy
+scikit-learn
+joblib
+requests
+tensorflow
+pydantic
+
+
+
+
 
