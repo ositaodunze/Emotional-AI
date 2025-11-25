@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import EmotionDetection from "./components/EmotionDetection.jsx";
-import GenreSelection from "./components/GenreSelection.jsx";
 import MusicPlayback from "./components/MusicPlayer.jsx";
 import ConnectSpotify from "./components/ConnectSpotify.jsx";
 import Home from "./components/home.jsx";
+import ArtistSelection from "./components/ArtsistSelection.jsx";
 
 function App() {
   const [emotion, setEmotion] = useState("");
-  const [selectedGenre, setSelectedGenres] = useState([]);
   const [spotifyUser, setSpotifyUser] = useState([null]);
   const [step, setStep] = useState("home");
+  const [selectedArtist, setSelectedArtist] = useState([]);
+
 
   useEffect(() => {
     const root = document.getElementById("root");
@@ -21,14 +22,17 @@ function App() {
     } else {
       root?.classList.remove("home-active");
       body?.classList.remove("home-active");
+
+      body.style.background = "transparent";
+      root.style.background = "transparent";
     }
   }, [step]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-transparent">
       {step === "home" && (
         <Home
-          onAuth={() =>{
+          onAuth={() => {
             setStep("connect");
           }}
         />
@@ -37,15 +41,15 @@ function App() {
         <ConnectSpotify
           onContinue={(user) => {
             setSpotifyUser(user);
-            setStep("genre");
+            setStep("artist");
           }}
         />
       )}
 
-      {step === "genre" && (
-        <GenreSelection
-          onContinue={(genres) => {
-            setSelectedGenres(genres);
+      {step === "artist" && (
+        <ArtistSelection
+          onContinue={(artist) => {
+            setSelectedArtist(artist);
             setStep("emotion");
           }}
         />
@@ -63,7 +67,7 @@ function App() {
       {step === "music" && (
         <MusicPlayback
           emotion={emotion}
-          genres={selectedGenre}
+          selectedArtist={selectedArtist}
           spotifyUser={spotifyUser}
           onGenerateNew={() => {
             setEmotion("");

@@ -1,18 +1,15 @@
 uvicorn
 fastapi
-spotify
+spotipy
 python-dotenv
 pandas
 numpy
-sklearn
 scikit-learn
 joblib
 requests
-json
 tensorflow
 pydantic
-os
-subprocess
+typing_extensions
 
 
 
