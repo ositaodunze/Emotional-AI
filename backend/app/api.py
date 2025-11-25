@@ -325,12 +325,16 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
             is_preferred = any(is_close_match(a, preferred_list) for a in spotify_artists_lower)
             is_similar = any(is_close_match(a, similar_list) for a in spotify_artists_lower)
 
+            print("RB Track Artists:", spotify_artists_lower)
             if is_preferred:
                 ranked_high.append(item)
+                print(" → HIGH MATCH with:", spotify_artists_lower)
             elif is_similar:
                 ranked_medium.append(item)
+                print(" → MEDIUM MATCH with:", spotify_artists_lower)
             else:
                 ranked_low.append(item)
+                print(" → LOW MATCH with:", spotify_artists_lower)
         except Exception as e:
             print("Failed to search", e)
             continue
@@ -338,6 +342,11 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
     final_recommendations.extend(ranked_high)
     final_recommendations.extend(ranked_medium)
     final_recommendations.extend(ranked_low)
+
+    print("Ranking summary → High:", len(ranked_high),
+      "Medium:", len(ranked_medium),
+      "Low:", len(ranked_low))
+
 
     if final_recommendations:
         return {"recommendations": final_recommendations}
