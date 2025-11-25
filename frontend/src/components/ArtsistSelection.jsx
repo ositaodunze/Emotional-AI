@@ -5,8 +5,8 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 const ArtistSelection = ({ onContinue }) => {
   const [artists, setArtists] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [loading, setLoading] = useState([]);
-  const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchArtists = async () => {
