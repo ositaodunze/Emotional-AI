@@ -91,7 +91,8 @@ body.home-active {
     transform: scale(0.98);
 }
 
-.main #myP{
+#myP,
+main {
     color: white;
 }
 
