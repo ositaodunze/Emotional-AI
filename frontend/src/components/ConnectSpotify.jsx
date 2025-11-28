@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
-const ConnectSpotify = ({ onContinue }) => {
+const ConnectSpotify = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -40,6 +42,11 @@ const ConnectSpotify = ({ onContinue }) => {
     window.location.href = `${BACKEND_URL}/spotify/login`;
   };
 
+  const handleContinue = () => {
+    localStorage.setItem("spotifyUser", JSON.stringify(user));
+    navigate("/artist");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-black text-white text-lg">
@@ -70,7 +77,7 @@ const ConnectSpotify = ({ onContinue }) => {
             />
           )}
           <button
-            onClick={() => onContinue(user)}
+            onClick={handleContinue}
             className="px-6 py-2 bg-white text-green-700 rounded-full font-bold hover:bg-gray-200 transition"
           >
             Continue
