@@ -25,7 +25,6 @@ const CamFeed = ({ onEmotionDetected }) => {
     return () => {
       // Cleanup on unmount: clear interval
       if (intervalId) clearInterval(intervalId);
-      
     };
   }, []);
 
@@ -40,14 +39,8 @@ const CamFeed = ({ onEmotionDetected }) => {
       canvas.style.left = 0;
       canvasRef.current.appendChild(canvas);
 
-      // Define allowed emotions once (moved outside interval)
-      const allowedEmotions = [
-        "happy",
-        "sad",
-        "surprised",
-        "angry",
-        "neutral",
-      ];
+      // Define allowed emotions
+      const allowedEmotions = ["happy", "sad", "surprised", "angry", "neutral"];
 
       // Start detection loop
       const id = setInterval(async () => {
@@ -60,23 +53,16 @@ const CamFeed = ({ onEmotionDetected }) => {
             .withFaceLandmarks()
             .withFaceExpressions();
 
-          // CRITICAL FIX: Check if detections exist before accessing
           if (!detections || detections.length === 0) {
-            return; // No face detected, skip this iteration
+            return;
           }
 
-          // Now safe to access detections[0]
           const expressions = detections[0].expressions;
-          
-          // Filter to only 5 used in project
-          const filteredExpressions = Object.entries(expressions)
-            .filter(([emotion]) => allowedEmotions.includes(emotion));
 
-          // No need for this duplicate code - remove it
-          // const highestEmotion = filteredExpressions.reduce(
-          //   (max, current) => (current[1] > max[1] ? current : max),
-          //   [allowedEmotions[0], 0]
-          // );
+          // Filter to only 5 emotions
+          const filteredExpressions = Object.entries(expressions).filter(
+            ([emotion]) => allowedEmotions.includes(emotion)
+          );
 
           faceapi.matchDimensions(canvas, {
             width: videoRef.current.videoWidth,
@@ -97,7 +83,8 @@ const CamFeed = ({ onEmotionDetected }) => {
           // Use the filtered expressions to find highest emotion
           if (filteredExpressions.length > 0) {
             const highestEmotion = filteredExpressions.reduce(
-              (highest, current) => (current[1] > highest[1] ? current : highest),
+              (highest, current) =>
+                current[1] > highest[1] ? current : highest,
               filteredExpressions[0]
             );
             

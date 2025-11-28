@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
-const ArtistSelection = ({ onContinue }) => {
+const ArtistSelection = () => {
   const [artists, setArtists] = useState([]);
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -42,7 +44,8 @@ const ArtistSelection = ({ onContinue }) => {
   const handleContinue = () => {
     if (selected.length > 0) {
       const artistIds = selected.map((a) => a.id);
-      onContinue(artistIds);
+      localStorage.setItem("selectedArtist", JSON.stringify(artistIds));
+      navigate("/emotion");
     }
   };
 

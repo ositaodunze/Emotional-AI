@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
@@ -33,7 +34,7 @@ const SpotifyIcon = () => (
   </svg>
 );
 
-const MusicPlayer = ({ emotion, onGenerateNew, selectedArtist }) => {
+const MusicPlayer = ({ emotion,selectedArtist }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [selectedTracks, setSelectedTracks] = useState([]);
@@ -42,6 +43,7 @@ const MusicPlayer = ({ emotion, onGenerateNew, selectedArtist }) => {
   const [spotifyEmbed, setSpotifyEmbed] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const navigate = useNavigate();
 
   const emotionData = {
     happy: {
@@ -508,7 +510,7 @@ const MusicPlayer = ({ emotion, onGenerateNew, selectedArtist }) => {
                 Save to Spotify
               </button>
               <button
-                onClick={onGenerateNew}
+                onClick={() => navigate("/emotion")}
                 style={{
                   flex: 1,
                   padding: "12px 24px",
