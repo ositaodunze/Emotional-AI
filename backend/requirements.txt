@@ -13,6 +13,8 @@ tensorflow
 pydantic
 os
 subprocess
+openai
+langdetect
 
 
 
