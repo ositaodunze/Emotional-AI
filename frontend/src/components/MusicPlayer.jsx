@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import Chatbot from "./Chatbot.jsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
@@ -36,7 +37,6 @@ const SpotifyIcon = () => (
 const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
-  const [selectedTracks, setSelectedTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [spotifyEmbed, setSpotifyEmbed] = useState(null);
@@ -77,6 +77,26 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
   };
 
   const currentEmotion = emotionData[emotion] || emotionData.neutral;
+
+  // Function to update playlist - can be called by chatbot
+  const updatePlaylistFromChatbot = useCallback((newTracks) => {
+    console.log("📻 DJ Vibe updating playlist with new tracks:", newTracks);
+    
+    // Convert chatbot playlist format to MusicPlayer format
+    const formattedTracks = newTracks.map(track => ({
+      name: track.name,
+      artist: track.artists,
+      url: track.url,
+      uri: track.uri
+    }));
+
+    setRecommendations(formattedTracks);
+
+    // Auto-play first track
+    if (formattedTracks.length > 0) {
+      playTrack(formattedTracks[0]);
+    }
+  }, []);
 
   useEffect(() => {
     if (!emotion) return;
@@ -134,14 +154,9 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
     };
 
     fetchRecommendations();
-  }, [emotion,genres]);
+  }, [emotion, genres]);
 
   const parseTrackData = (track) => {
-    const artistName =
-      track.artists && Array.isArray(track.artists) && track.artists.length > 0
-        ? track.artists[0].name
-        : "Unknown Artist";
-
     return {
       id: track.uri?.split(":")[2] || null,
       name: track.name || "Unknown Track",
@@ -174,7 +189,6 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
     alert(`Playlist "${name}" saved with ${recommendations.length} tracks!`);
   };
 
-  // Format duration (mock data for now)
   const formatDuration = (index) => {
     const durations = ["3:45", "4:12", "3:28", "3:56", "4:33"];
     return durations[index % durations.length];
@@ -456,7 +470,7 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
           </div>
         </div>
 
-        {/* Tracks Section - FIXED SCROLLING */}
+        {/* Tracks Section */}
         <div style={{
           flex: 1,
           minHeight: 0,
@@ -571,6 +585,12 @@ const MusicPlayer = ({ emotion, onGenerateNew, genres }) => {
           background: rgba(255,255,255,0.15);
         }
       `}</style>
+      
+      {/* Chatbot with callback to update playlist */}
+      <Chatbot 
+        emotion={emotion} 
+        onPlaylistGenerated={updatePlaylistFromChatbot}
+      />
     </div>
   );
 };
