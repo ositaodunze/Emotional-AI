@@ -94,5 +94,6 @@ body.home-active {
 #myP,
 main {
     color: white;
+    animation: pulse;
 }
 
