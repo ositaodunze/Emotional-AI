@@ -53,7 +53,7 @@ const EmotionDetection = () => {
     };
     return colorMap[emotion] || "from-purple-400 to-pink-400";
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl">

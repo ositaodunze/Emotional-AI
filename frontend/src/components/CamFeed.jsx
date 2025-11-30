@@ -4,6 +4,7 @@ import * as faceapi from "face-api.js";
 const CamFeed = ({ onEmotionDetected }) => {
   const videoRef = useRef();
   const canvasRef = useRef();
+  const streamRef = useRef(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [currentEmotion, setCurrentEmotion] = useState("");
   const [intervalId, setIntervalId] = useState(null);
@@ -19,14 +20,24 @@ const CamFeed = ({ onEmotionDetected }) => {
 
     // Start video
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      streamRef.current = stream;
       videoRef.current.srcObject = stream;
     });
 
     return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
       // Cleanup on unmount: clear interval
       if (intervalId) clearInterval(intervalId);
+      if (videoRef.current){
+        videoRef.current.srcObject = null;
+      }
+      if (canvasRef.current) {
+        canvasRef.current.innerHTML = "";
+      }
     };
-  }, []);
+  }, [intervalId]);
 
   const handleVideoPlay = () => {
     if (!videoRef.current || videoRef.current.readyState < 2) {

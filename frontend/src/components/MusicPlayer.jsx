@@ -44,6 +44,8 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const navigate = useNavigate();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
 
   const emotionData = {
     happy: {
@@ -171,15 +173,51 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
     });
   };
 
-  const handleSavePlaylist = () => {
-    const name = playlistName || `${currentEmotion.label} Mix`;
-    console.log(
-      "Saving playlist:",
-      name,
-      recommendations.map((r) => r.uri)
-    );
-    alert(`Playlist "${name}" saved with ${recommendations.length} tracks!`);
+  const handleNextTrack = () => {
+    if (recommendations.length === 0) return;
+
+    const nextIndex =
+      currentIndex + 1 < recommendations.length ? currentIndex + 1 : 0;
+
+    setCurrentIndex(nextIndex);
+    const nextTrack = recommendations[nextIndex];
+    playTrack(nextTrack);
   };
+
+
+  const handleSavePlaylist = async () => {
+    if (recommendations.length === 0) {
+      alert("No tracks to save!");
+      return;
+    }
+
+    const name = playlistName || `${currentEmotion.label} Mix`;
+    const uris = recommendations.map((t) => t.uri);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/save-playlist`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          playlist_name: name,
+          uris: uris,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        alert(`Playlist "${name}" saved to Spotify!`);
+      } else {
+        alert("Failed to save playlist.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving playlist.");
+    }
+  };
+;
 
   const formatDuration = (ms) => {
     if (!ms) return "0:00";
@@ -190,31 +228,26 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   };
 
   useEffect(() => {
-    const originalStyle = document.body.style.cssText;
-    document.body.style.margin = "0";
-    document.body.style.padding = "0";
-    document.body.style.overflow = "hidden";
+    
+    document.body.style.overflowX = "hidden";
+    document.body.style.overflowX = "auto";
 
     return () => {
-      document.body.style.cssText = originalStyle;
+      document.body.style.overflow = "auto";
     };
   }, []);
 
   return (
     <div
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        minHeight: "100vh",
         width: "100vw",
-        height: "100vh",
         background: "linear-gradient(to bottom, #1a1a2e 0%, #0f0f1e 100%)",
         color: "white",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        overflow: "hidden",
+        overflowX: "hidden",
+        overflowY: "auto",
         display: "flex",
         flexDirection: "column",
       }}
@@ -455,6 +488,7 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
                       opacity: 0.7,
                       transition: "opacity 0.2s",
                     }}
+                    onClick={handleNextTrack}
                   >
                     <SkipIcon />
                   </button>

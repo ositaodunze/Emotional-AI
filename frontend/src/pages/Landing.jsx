@@ -4,9 +4,24 @@ import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8888";
 
-const Home = () => {
+const Landing = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (isLoggedIn === "true") {
+      navigate("/home");
+    }
+  }, []);
+
+  const guest = localStorage.getItem("guest");
+  const spotifyConnected = localStorage.getItem("spotifyConnected");
+  if (guest === "true" && spotifyConnected === "true") {
+    navigate("/emotion");
+  }
+
   const handleAuth = () => {
+    localStorage.setItem("guest", "true");
     navigate("/connect");
   };
 
@@ -30,7 +45,12 @@ const Home = () => {
           >
             Connect Spotify
           </button>
-          <button className="nav-btn login-btn">Login / Signup</button>
+          <button
+            className="nav-btn login-btn"
+            onClick={() => navigate("/login")}
+          >
+            Login / Signup
+          </button>
         </div>
       </nav>
 
@@ -99,4 +119,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Landing;
