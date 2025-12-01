@@ -1,12 +1,16 @@
 from fastapi import FastAPI,Request,Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import StreamingResponse  # ➕ NEW for ElevenLabs
+from io import BytesIO  # ➕ NEW for ElevenLabs
 from pydantic import BaseModel
 import spotify_recc
 import spotify_api
 import json
 import requests #useful for recommendations from reccobeats
 from app.startup import verify_load_model
+from app.chatbot import get_chat_response, detect_language
+from app.voice_service import get_voice_service  # ➕ NEW for ElevenLabs
 from contextlib import asynccontextmanager
 import pandas as pd
 from typing import Optional, List
@@ -85,6 +89,56 @@ def get_track_genres(sp,track_id):
     artists = sp.artists(artist_ids)
     raw = {g for a in artists["artists"] for g in a.get("genres", [])}
     return raw
+
+def get_spotify_seed_tracks(sp, genres=None):
+    """Get seed track IDs from user's top tracks, optionally filtered by genres."""
+    try:
+        user_top = sp.current_user_top_tracks(limit=50)
+        all_tracks = user_top.get("items", [])
+        
+        if not genres:
+            return [track['id'] for track in all_tracks[:5]]
+        
+        artist_ids = set()
+        for track in all_tracks:
+            for artist in track['artists']:
+                artist_ids.add(artist['id'])
+        
+        # Spotify API limit: max 50 artist IDs per request
+        artist_ids_list = list(artist_ids)
+        
+        # Batch requests if we have more than 50 artists
+        artist_genre_map = {}
+        if len(artist_ids_list) > 50:
+            # Process in batches of 50
+            for i in range(0, len(artist_ids_list), 50):
+                batch = artist_ids_list[i:i+50]
+                artists_data = sp.artists(batch)
+                for artist in artists_data['artists']:
+                    artist_genre_map[artist['id']] = set(artist.get('genres', []))
+        else:
+            artists_data = sp.artists(artist_ids_list)
+            for artist in artists_data['artists']:
+                artist_genre_map[artist['id']] = set(artist.get('genres', []))
+            
+        filtered_seed_ids = []
+        target_genres = set(genres)
+        
+        for track in all_tracks:
+            track_artists = [a['id'] for a in track.get('artists', [])]
+            track_genres = set()
+            for artist_id in track_artists:
+                track_genres.update(artist_genre_map.get(artist_id, set()))
+            
+            if track_genres & target_genres:  # If any genre matches
+                filtered_seed_ids.append(track['id'])
+                if len(filtered_seed_ids) >= 5:
+                    break
+        
+        return filtered_seed_ids[:5] if filtered_seed_ids else [track['id'] for track in all_tracks[:5]]
+    except Exception as e:
+        print(f"Error getting seed tracks: {e}")
+        return []
 
 @app.get("/api/top-artists")
 def get_top_artists(request: Request):
@@ -396,3 +450,244 @@ def current_track(request: Request):
     sp = spotify_api.get_spotify_client(token_info_json)
     return spotify_recc.get_current_track(sp)
 
+class ChatRequest(BaseModel):
+    message: str
+    language: str = "en"
+    conversation_history: List[dict] = []
+    detected_emotion: str = None
+
+class LanguageDetectionRequest(BaseModel):
+    text: str
+
+@app.post("/api/chat")
+async def chat(request: Request, chat_request: ChatRequest):
+    """Chat endpoint with DJ persona and music generation"""
+    try:
+        # Check if user has Spotify connected
+        token_info_json = request.cookies.get("spotify_token_info")
+        has_spotify = token_info_json is not None
+        
+        # Get DJ response (potentially with music generation trigger)
+        result = get_chat_response(
+            message=chat_request.message,
+            conversation_history=chat_request.conversation_history,
+            language=chat_request.language,
+            detected_emotion=chat_request.detected_emotion
+        )
+        
+        response_data = {
+            "response": result["response"],
+            "playlist": None
+        }
+        
+        # If DJ wants to generate music and user has Spotify
+        if result.get("music_data") and has_spotify:
+            emotion = result["music_data"]["emotion"]
+            genres = result["music_data"]["genres"]
+            
+            try:
+                sp = spotify_api.get_spotify_client(token_info_json)
+                
+                # Get seed tracks from Spotify
+                seed_track_ids = get_spotify_seed_tracks(sp, genres=genres)
+                
+                if seed_track_ids:
+                    # Predict features based on emotion using your ML model
+                    predicted_features = predict_track_features(request.app, emotion)
+                    scaler_y = request.app.state.scaler_y
+                    numeric_columns = scaler_y.feature_names_in_
+                    feature_params = convert_to_reccobeats(predicted_features, numeric_columns)
+                    
+                    # Get recommendations from ReccoBeats
+                    rb_response = call_reccobeats(
+                        feature_params, 
+                        limit=10, 
+                        seed_ids=seed_track_ids
+                    )
+                    
+                    if rb_response and "content" in rb_response:
+                        playlist = []
+                        
+                        for track in rb_response["content"][:10]:
+                            try:
+                                spotify_url = track.get("href")
+                                if not spotify_url or "track/" not in spotify_url:
+                                    continue
+                                
+                                spotify_id = spotify_url.split("track/")[-1].split("?")[0].strip()
+                                if not spotify_id or len(spotify_id) < 10:
+                                    continue
+                                
+                                # Get track details from Spotify for album art
+                                try:
+                                    track_details = sp.track(spotify_id)
+                                    album_image = track_details['album']['images'][0]['url'] if track_details['album']['images'] else None
+                                except:
+                                    album_image = None
+                                
+                                name = track.get("trackTitle", "Unknown Track")
+                                artists_data = track.get("artists", [])
+                                artist_name = artists_data[0].get("name") if artists_data else "Unknown Artist"
+                                
+                                playlist.append({
+                                    "name": name,
+                                    "artists": artist_name,
+                                    "url": spotify_url,
+                                    "uri": f"spotify:track:{spotify_id}",
+                                    "album_image": album_image,
+                                    "preview_url": None
+                                })
+                            except Exception as e:
+                                print(f"Error processing track: {e}")
+                                continue
+                        
+                        if playlist:
+                            response_data["playlist"] = playlist
+                            response_data["response"] += f"\n\nCheck out these {len(playlist)} tracks I just queued up for you! 🎶"
+                        else:
+                            # Fallback to Spotify search
+                            search_query = f"{emotion} music"
+                            if genres:
+                                search_query += f" {genres[0]}"
+                            
+                            fallback = sp.search(q=search_query, type="track", limit=10)
+                            playlist = []
+                            
+                            for item in fallback["tracks"]["items"]:
+                                playlist.append({
+                                    "name": item["name"],
+                                    "artists": item["artists"][0]["name"],
+                                    "url": item["external_urls"]["spotify"],
+                                    "uri": item["uri"],
+                                    "album_image": item["album"]["images"][0]["url"] if item["album"]["images"] else None,
+                                    "preview_url": item.get("preview_url")
+                                })
+                            
+                            response_data["playlist"] = playlist
+                            response_data["response"] += f"\n\nCheck out these {len(playlist)} tracks I found for you! 🎶"
+                    
+            except Exception as e:
+                print(f"Music generation error: {e}")
+                response_data["response"] += "\n\n(Had a little trouble pulling tracks from Spotify, but I'm still here to vibe with you! 🎧)"
+        
+        elif result.get("music_data") and not has_spotify:
+            # User wants music but hasn't connected Spotify
+            response_data["response"] += "\n\nYo! To get you those tracks, you'll need to connect your Spotify account first! 🎵"
+        
+        return response_data
+        
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return JSONResponse(
+            {"error": "Failed to process chat message", "response": "Yo, technical difficulties! Hit me again! 🎧"},
+            status_code=500
+        )
+
+@app.post("/api/detect-language")
+async def detect_language_endpoint(lang_request: LanguageDetectionRequest):
+    """Detect language from text"""
+    try:
+        detected_lang = detect_language(lang_request.text)
+        return {"language": detected_lang}
+    except Exception as e:
+        print(f"Language detection error: {e}")
+        return {"language": "en"}  # Default to English
+
+
+# ============================================
+# ➕ NEW ELEVENLABS VOICE ENDPOINTS
+# ============================================
+
+@app.post("/api/text-to-speech")
+async def text_to_speech(request: Request):
+    """
+    Convert text to speech using ElevenLabs
+    Returns audio stream (MP3 format)
+    
+    Usage: Frontend sends text, receives audio to play
+    """
+    try:
+        data = await request.json()
+        text = data.get("text", "")
+        
+        if not text:
+            return JSONResponse({"error": "No text provided"}, status_code=400)
+        
+        voice_service = get_voice_service()
+        if not voice_service:
+            return JSONResponse(
+                {"error": "Voice service not available. Check ELEVENLABS_API_KEY in .env"}, 
+                status_code=503
+            )
+        
+        # Generate audio
+        audio_data = voice_service.text_to_speech(text)
+        
+        if not audio_data:
+            return JSONResponse({"error": "Failed to generate audio"}, status_code=500)
+        
+        # Return audio as streaming response
+        return StreamingResponse(
+            BytesIO(audio_data),
+            media_type="audio/mpeg",
+            headers={
+                "Content-Disposition": "inline; filename=speech.mp3",
+                "Cache-Control": "no-cache"
+            }
+        )
+        
+    except Exception as e:
+        print(f"TTS Error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/voices")
+async def get_voices():
+    """
+    Get available DJ voices for the chatbot
+    Returns list of voice options with descriptions
+    """
+    voice_service = get_voice_service()
+    if not voice_service:
+        return JSONResponse(
+            {"error": "Voice service not available"}, 
+            status_code=503
+        )
+    
+    return voice_service.get_available_voices()
+
+
+@app.post("/api/change-voice")
+async def change_voice(request: Request):
+    """
+    Change the DJ voice personality
+    
+    Request body:
+    {
+        "voice": "rachel" | "bella" | "antoni" | "josh"
+    }
+    """
+    try:
+        data = await request.json()
+        voice_name = data.get("voice", "rachel")
+        
+        voice_service = get_voice_service()
+        if not voice_service:
+            return JSONResponse(
+                {"error": "Voice service not available"}, 
+                status_code=503
+            )
+        
+        success = voice_service.change_voice(voice_name)
+        
+        if success:
+            return {"message": f"Voice changed to {voice_name}", "success": True}
+        else:
+            return JSONResponse(
+                {"error": "Invalid voice name. Choose: rachel, bella, antoni, or josh", "success": False},
+                status_code=400
+            )
+            
+    except Exception as e:
+        print(f"Change voice error: {e}")
+        return JSONResponse({"error": str(e), "success": False}, status_code=500)

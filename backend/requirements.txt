@@ -9,7 +9,7 @@ joblib
 requests
 tensorflow
 pydantic
+openai
+langdetect
 typing_extensions
-
-
-
+elevenlabs

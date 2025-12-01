@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import Chatbot from "./Chatbot.jsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
@@ -37,7 +38,6 @@ const SpotifyIcon = () => (
 const MusicPlayer = ({ emotion,selectedArtist }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
-  const [selectedTracks, setSelectedTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [spotifyEmbed, setSpotifyEmbed] = useState(null);
@@ -79,6 +79,26 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   };
 
   const currentEmotion = emotionData[emotion] || emotionData.neutral;
+
+  // Function to update playlist - can be called by chatbot
+  const updatePlaylistFromChatbot = useCallback((newTracks) => {
+    console.log("📻 DJ Vibe updating playlist with new tracks:", newTracks);
+    
+    // Convert chatbot playlist format to MusicPlayer format
+    const formattedTracks = newTracks.map(track => ({
+      name: track.name,
+      artist: track.artists,
+      url: track.url,
+      uri: track.uri
+    }));
+
+    setRecommendations(formattedTracks);
+
+    // Auto-play first track
+    if (formattedTracks.length > 0) {
+      playTrack(formattedTracks[0]);
+    }
+  }, []);
 
   useEffect(() => {
     if (!emotion) return;
@@ -140,11 +160,6 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   }, [emotion, selectedArtist]);
 
   const parseTrackData = (track) => {
-    const artistName =
-      track.artists && Array.isArray(track.artists) && track.artists.length > 0
-        ? track.artists[0].name
-        : "Unknown Artist";
-
     return {
       id: track.uri?.split(":")[2] || null,
       name: track.name || "Unknown Track",
@@ -686,6 +701,12 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
           background: rgba(255,255,255,0.15);
         }
       `}</style>
+      
+      {/* Chatbot with callback to update playlist */}
+      <Chatbot 
+        emotion={emotion} 
+        onPlaylistGenerated={updatePlaylistFromChatbot}
+      />
     </div>
   );
 };
