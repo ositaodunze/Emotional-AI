@@ -1,78 +1,79 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect } from "react";
 import "./App.css";
 import EmotionDetection from "./components/EmotionDetection.jsx";
-import GenreSelection from "./components/GenreSelection.jsx";
 import MusicPlayback from "./components/MusicPlayer.jsx";
 import ConnectSpotify from "./components/ConnectSpotify.jsx";
 import Home from "./components/home.jsx";
+import ArtistSelection from "./components/ArtsistSelection.jsx";
+import {
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 
 function App() {
-  const [emotion, setEmotion] = useState("");
-  const [selectedGenre, setSelectedGenres] = useState([]);
-  const [spotifyUser, setSpotifyUser] = useState([null]);
-  const [step, setStep] = useState("home");
-
-  useEffect(() => {
-    const root = document.getElementById("root");
-    const body = document.body;
-    if (step === "home") {
-      root?.classList.add("home-active");
-      body?.classList.add("home-active");
-    } else {
-      root?.classList.remove("home-active");
-      body?.classList.remove("home-active");
-    }
-  }, [step]);
-
-  return (
-    <div>
-      {step === "home" && (
-        <Home
-          onAuth={() =>{
-            setStep("connect");
-          }}
-        />
-      )}
-      {step === "connect" && (
-        <ConnectSpotify
-          onContinue={(user) => {
-            setSpotifyUser(user);
-            setStep("genre");
-          }}
-        />
-      )}
-
-      {step === "genre" && (
-        <GenreSelection
-          onContinue={(genres) => {
-            setSelectedGenres(genres);
-            setStep("emotion");
-          }}
-        />
-      )}
-
-      {step === "emotion" && (
-        <EmotionDetection
-          onEmotionDetected={(detectedEmotion) => {
-            setEmotion(detectedEmotion);
-            setStep("music");
-          }}
-        />
-      )}
-
-      {step === "music" && (
-        <MusicPlayback
-          emotion={emotion}
-          genres={selectedGenre}
-          spotifyUser={spotifyUser}
-          onGenerateNew={() => {
-            setEmotion("");
-            setStep("emotion");
-          }}
-        />
-      )}
-    </div>
-  );
+     return <MainRouter />
 }
 
+function MainRouter() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const lastPath = localStorage.getItem("last_path");
+    if (window.location.pathname === "/" && lastPath && lastPath !== "/") {
+      navigate(lastPath, {replace:true});}
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      localStorage.setItem("last_path", window.location.pathname);
+    };
+    window.addEventListener("beforeunload", handleRouteChange);
+    return () => window.removeEventListener("beforeunload", handleRouteChange);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-transparent">
+      <Routes>
+        <Route
+        path="/"
+        element={<Home/>}
+        />
+
+        <Route 
+        path="/connect"
+        element={
+          <ConnectSpotify/>
+        }
+        />
+
+        <Route
+          path="/artist"
+          element={
+            <ArtistSelection/>
+          }
+        />
+
+        <Route
+          path="/emotion"
+          element={
+            <EmotionDetection />
+          }
+        />
+
+         <Route
+          path="/music"
+          element={
+            <MusicPlayback
+              emotion={localStorage.getItem("emotion")}
+              selectedArtist={JSON.parse(localStorage.getItem("selectedArtist") || "[]")}
+              spotifyUser={JSON.parse(localStorage.getItem("spotifyUser") || "null")}
+              onGenerateNew={() => navigate("/emotion")}
+            />
+          }
+        />
+      </Routes>
+    </div>
+  )
+}
 export default App;
