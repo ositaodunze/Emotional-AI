@@ -19,10 +19,15 @@ const CamFeed = ({ onEmotionDetected }) => {
     ]).then(() => setModelsLoaded(true));
 
     // Start video
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      streamRef.current = stream;
-      videoRef.current.srcObject = stream;
-    });
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        streamRef.current = stream;
+        videoRef.current.srcObject = stream;
+      })
+      .catch((err) => {
+        console.error("Error accessing camera:", err);
+      });
 
     return () => {
       if (streamRef.current) {
@@ -37,7 +42,7 @@ const CamFeed = ({ onEmotionDetected }) => {
         canvasRef.current.innerHTML = "";
       }
     };
-  }, [intervalId]);
+  }, []);
 
   const handleVideoPlay = () => {
     if (!videoRef.current || videoRef.current.readyState < 2) {

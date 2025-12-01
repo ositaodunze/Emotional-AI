@@ -21,13 +21,14 @@ const Navbar = () => {
   const handleLogout = () => {
     setProfileOpen(false);
     alert("Logout clicked");
+    navigate("/")
   };
 
   return (
     <nav className="w-full bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 px-4 sm:px-8 py-4 shadow-lg border-b border-purple-500/20">
       <div className="flex items-center justify-between">
         <button
-          onClick={() => handleNavigation("/")}
+          onClick={() => handleNavigation("/home")}
           className="flex items-center gap-2 group"
         >
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 rounded-lg group-hover:scale-110 transition-transform duration-300">
@@ -174,7 +175,7 @@ const Navbar = () => {
         <div className="md:hidden mt-4 pt-4 border-t border-purple-500/20">
           <div className="flex flex-col gap-2">
             <button
-              onClick={() => handleNavigation("/")}
+              onClick={() => handleNavigation("/home")}
               className="px-4 py-3 text-white text-left hover:bg-white/10 rounded-lg transition-all"
             >
               Home

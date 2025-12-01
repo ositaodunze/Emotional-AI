@@ -10,6 +10,7 @@ import {
   Calendar,
   Play,
 } from "lucide-react";
+import Navbar from "../components/Navbar.jsx";
 
 const PastPlaylists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -75,6 +76,8 @@ const PastPlaylists = () => {
   };
 
   return (
+     <>
+        <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         <div className="text-center mb-14">
@@ -232,7 +235,7 @@ const PastPlaylists = () => {
                 emotions
               </p>
               <button
-                onClick={() => handleNavigation("/emotion")}
+                onClick={() => handleNavigation("/artist")}
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-bold shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300"
               >
                 <Sparkles className="w-5 h-5" />
@@ -246,6 +249,7 @@ const PastPlaylists = () => {
         <div className="h-20" />
       </div>
     </div>
+    </>
   );
 };
 

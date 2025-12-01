@@ -1,53 +1,29 @@
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import EmotionDetection from "./components/EmotionDetection.jsx";
 import MusicPlayback from "./components/MusicPlayer.jsx";
 import ConnectSpotify from "./components/ConnectSpotify.jsx";
 import Home from "./pages/Home.jsx";
 import ArtistSelection from "./components/ArtsistSelection.jsx";
-import {
-  Routes,
-  Route,
-  useNavigate,
-  useLocation
-} from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Profile from "./pages/Profile.jsx";
 import PastPlaylists from "./pages/PastPlaylist.jsx";
 
 function App() {
-     return (
-       <>
-         <MainRouter />
-       </>
-     );
+  return (
+    <>
+      <MainRouter />
+    </>
+  );
 }
 
 function MainRouter() {
   const navigate = useNavigate();
   const location = useLocation();
-  const hideNavbarRoutes = ["/"];
-  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
-
-  useEffect(() => {
-    const lastPath = localStorage.getItem("last_path");
-    if (window.location.pathname === "/" && lastPath && lastPath !== "/") {
-      navigate(lastPath, {replace:true});}
-  }, [navigate]);
-
-  useEffect(() => {
-    const handleRouteChange = () => {
-      localStorage.setItem("last_path", window.location.pathname);
-    };
-    window.addEventListener("beforeunload", handleRouteChange);
-    return () => window.removeEventListener("beforeunload", handleRouteChange);
-  }, []);
 
   return (
     <div className="min-h-screen bg-transparent">
-      {shouldShowNavbar && <Navbar />}
-
       <Routes>
         <Route path="/" element={<Landing />} />
 
