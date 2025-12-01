@@ -9,6 +9,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Profile from "./pages/Profile.jsx";
 import PastPlaylists from "./pages/PastPlaylist.jsx";
+import PlaylistPage from "./pages/Playlist.jsx";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function MainRouter() {
         />
         <Route path="/profile" element={<Profile />} />
         <Route path="/history" element={<PastPlaylists />} />
+        <Route path="/playlist" element={<PlaylistPage/>} />
       </Routes>
     </div>
   );

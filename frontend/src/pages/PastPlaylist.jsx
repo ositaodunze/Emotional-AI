@@ -142,7 +142,7 @@ const PastPlaylists = () => {
               artists to get started
             </p>
             <button
-              onClick={() => handleNavigation("/emotion")}
+              onClick={() => handleNavigation("/artist")}
               className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-bold shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300"
             >
               <Sparkles className="w-5 h-5" />
