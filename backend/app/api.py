@@ -363,6 +363,7 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
             name = track.get("trackTitle", "Unknown Track")
             artists_data = track.get("artists",[])
             primary_artist_name = artists_data[0].get("name") if artists_data else "Unknown Artist"
+            image = track.get("album","images",0,"url")
 
             spotify_artists = [a["name"] for a in meta.get("artists", []) if a.get("name")]
             spotify_artists_lower = [n.lower() for n in spotify_artists]
@@ -373,7 +374,8 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
                 "artists_all": spotify_artists,
                 "url": spotify_url,
                 "uri": f"spotify:track:{spotify_id}",
-                "duration_ms": meta.get("duration_ms", 0)
+                "duration_ms": meta.get("duration_ms", 0),
+                "image":image
                 }
             
             is_preferred = any(is_close_match(a, preferred_list) for a in spotify_artists_lower)
@@ -423,7 +425,8 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
                         "artist": tr["artists"][0]["name"],
                         "url": tr["external_urls"]["spotify"],
                         "uri": tr["uri"],
-                        "duration_ms": tr["duration_ms"]
+                        "duration_ms": tr["duration_ms"],
+                        "image":tr["image"]
                     })
         except:
             continue

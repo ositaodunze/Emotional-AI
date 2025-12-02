@@ -18,9 +18,13 @@ scope = (
     "user-read-currently-playing "
     "user-read-private "
     "user-read-email "
-    "user-top-read"
+    "user-top-read "
     "playlist-modify-public "
-    "playlist-modify-private"
+    "playlist-modify-private "
+    "user-read-playback-position "
+    "user-library-read "
+    "streaming "
+
 )
 
 # ---- Global OAuth manager ----

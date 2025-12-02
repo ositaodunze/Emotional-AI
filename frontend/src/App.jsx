@@ -10,6 +10,7 @@ import Landing from "./pages/Landing.jsx";
 import Profile from "./pages/Profile.jsx";
 import PastPlaylists from "./pages/PastPlaylist.jsx";
 import PlaylistPage from "./pages/Playlist.jsx";
+import PostConnectCheck from "./components/PostConnectCheck.jsx";
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function MainRouter() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/history" element={<PastPlaylists />} />
         <Route path="/playlist" element={<PlaylistPage/>} />
+        <Route path="/spotify-check" elememt={<PostConnectCheck/>} />
       </Routes>
     </div>
   );

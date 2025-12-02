@@ -7,36 +7,63 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
 // Icon components
 const PlayIcon = () => (
-  <svg style={{ width: '24px', height: '24px' }} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M8 5v14l11-7z"/>
+  <svg
+    style={{ width: "24px", height: "24px" }}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M8 5v14l11-7z" />
   </svg>
 );
 
 const PauseIcon = () => (
-  <svg style={{ width: '24px', height: '24px' }} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+  <svg
+    style={{ width: "24px", height: "24px" }}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
   </svg>
 );
 
 const SkipIcon = () => (
-  <svg style={{ width: '20px', height: '20px' }} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M5 4l10 8-10 8V4zm11 0h3v16h-3V4z"/>
+  <svg
+    style={{ width: "20px", height: "20px" }}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M5 4l10 8-10 8V4zm11 0h3v16h-3V4z" />
   </svg>
 );
 
 const RefreshIcon = () => (
-  <svg style={{ width: '20px', height: '20px' }} fill="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} stroke="currentColor" fill="none" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  <svg
+    style={{ width: "20px", height: "20px" }}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      stroke="currentColor"
+      fill="none"
+      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+    />
   </svg>
 );
 
 const SpotifyIcon = () => (
-  <svg style={{ width: '20px', height: '20px' }} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+  <svg
+    style={{ width: "20px", height: "20px" }}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
   </svg>
 );
 
-const MusicPlayer = ({ emotion,selectedArtist }) => {
+const MusicPlayer = ({ emotion, selectedArtist }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,7 +73,9 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [player, setPlayer] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const emotionData = {
     happy: {
@@ -86,13 +115,13 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   // Function to update playlist - can be called by chatbot
   const updatePlaylistFromChatbot = useCallback((newTracks) => {
     console.log("📻 DJ Vibe updating playlist with new tracks:", newTracks);
-    
+
     // Convert chatbot playlist format to MusicPlayer format
-    const formattedTracks = newTracks.map(track => ({
+    const formattedTracks = newTracks.map((track) => ({
       name: track.name,
       artist: track.artists,
       url: track.url,
-      uri: track.uri
+      uri: track.uri,
     }));
 
     setRecommendations(formattedTracks);
@@ -169,6 +198,7 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
       artist: track.artist || "Unknown Artist",
       url: track.url || null,
       uri: track.uri || null,
+      image: track.image || null,
     };
   };
 
@@ -180,11 +210,12 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
       `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&autoplay=1`
     );
     setIsPlaying(true);
+    const deviceId = localStorage.getItem("feedmusic_device_id");
 
     fetch(`${BACKEND_URL}/api/play`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uris: [parsedTrack.uri] }),
+      body: JSON.stringify({ uris: [parsedTrack.uri], device_id: deviceId }),
       credentials: "include",
     });
   };
@@ -199,7 +230,6 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
     const nextTrack = recommendations[nextIndex];
     playTrack(nextTrack);
   };
-
 
   const handleSavePlaylist = async () => {
     if (recommendations.length === 0) {
@@ -233,8 +263,6 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
       alert("Error saving playlist.");
     }
   };
-;
-
   const formatDuration = (ms) => {
     if (!ms) return "0:00";
     const totalSeconds = Math.floor(ms / 1000);
@@ -244,7 +272,6 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   };
 
   useEffect(() => {
-    
     document.body.style.overflowX = "hidden";
     document.body.style.overflowX = "auto";
 
@@ -254,19 +281,8 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
   }, []);
 
   const handlePlayPause = async () => {
-    if (!currentTrack) return;
-    const endpoint = isPlaying ? "/api/pause" : "/api/resume";
-
-    setIsPlaying(!isPlaying);
-    try {
-      await fetch(`${BACKEND_URL}${endpoint}`, {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (error) {
-      console.error(`Error controlling playback (${endpoint}):`, error);
-      setIsPlaying(isPlaying);
-    }
+    if (!player) return;
+    await player.togglePlay();
   };
 
   const handlePreviousTrack = () => {
@@ -278,6 +294,54 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
     const prevTrack = recommendations[prevIndex];
     playTrack(prevTrack);
   };
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const token = JSON.parse(
+        localStorage.getItem("spotify_token_info")
+      ).access_token;
+
+      const player = new window.Spotify.Player({
+        name: "FeedMusic Player",
+        getOAuthToken: (cb) => cb(token),
+        volume: 0.5,
+      });
+
+      setPlayer(player);
+
+      player.addListener("ready", ({ device_id }) => {
+        console.log("Ready with Device ID", device_id);
+        localStorage.setItem("feedmusic_device_id", device_id);
+      });
+
+      player.addListener("player_state_changed", (state) => {
+        if (!state) return;
+
+        const current = state.track_window.current_track;
+        setProgress(state.position);
+        setDuration(state.duration);
+
+        setCurrentTrack({
+          id: current.id,
+          name: current.name,
+          artist: current.artists[0].name,
+          duration_ms: current.duration_ms,
+          image: current.album.images[0].url,
+        });
+
+        setIsPlaying(!state.paused);
+      });
+
+      player.connect();
+    };
+  }, []);
+
+const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (
     <>
@@ -397,14 +461,16 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
                   overflow: "hidden",
                 }}
               >
-                {spotifyEmbed ? (
-                  <iframe
-                    src={spotifyEmbed}
-                    width="100%"
-                    height="100%"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                    style={{ border: "none", borderRadius: "12px" }}
+                {currentTrack?.image ? (
+                  <img
+                    src={currentTrack.image}
+                    alt={currentTrack.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "12px",
+                    }}
                   />
                 ) : (
                   <div style={{ textAlign: "center" }}>
@@ -451,7 +517,7 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
                       style={{
                         height: "100%",
                         background: "#1db954",
-                        width: "30%",
+                        width: `${progressPercent}%`,
                         transition: "width 0.3s",
                       }}
                     ></div>
@@ -465,8 +531,10 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
                       marginBottom: "20px",
                     }}
                   >
-                    <span>1:23</span>
-                    <span>3:45</span>
+                    <span>{formatDuration(progress)}</span>
+                    <span>
+                      {formatDuration(duration || currentTrack.duration_ms)}
+                    </span>
                   </div>
 
                   <div
@@ -621,7 +689,6 @@ const MusicPlayer = ({ emotion,selectedArtist }) => {
             </div>
           </div>
 
-          {/* Tracks Section - FIXED SCROLLING */}
           <div
             style={{
               flex: 1,
