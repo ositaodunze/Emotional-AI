@@ -23,14 +23,17 @@ export default function Login() {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data: loginData, error } = await supabase.auth.signInWithPassword(
+          {
+            email,
+            password,
+          }
+        );
         if (error) throw error;
+        console.log("Logged in user:", loginData.user);
         navigate("/home");
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -38,8 +41,8 @@ export default function Login() {
           },
         });
         if (error) throw error;
-
-        if (data.user) {
+        const newUser = signUpData.user;
+        if (newUser) {
           const { error: profileError } = await supabase
             .from("profiles")
             .update({
@@ -47,7 +50,7 @@ export default function Login() {
               lname,
               username,
             })
-            .eq("id", data.user.id);
+            .eq("id", newUser.id);
 
           if (profileError) {
             console.error("Profile update error:", profileError);

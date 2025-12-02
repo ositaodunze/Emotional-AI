@@ -2,36 +2,43 @@ import React, { useEffect, useState } from "react";
 import { Music, User, History, Sparkles, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
+import { supabase } from "../lib/supabase";
+
 
 const Home = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-   useEffect(() => {
-     const isLoggedIn = localStorage.getItem("isLoggedIn");
-     if (isLoggedIn !== "true") {
-       navigate("/");
-     }
-   }, []);
-   
   const handleNavigation = (path) => {
     navigate(path);
   };
 
-  // Load user info
-  useEffect(() => {
-    const storedUser = localStorage.getItem("feedmusic_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // Mock user for demo
-      setUser({
-        username: "Alex",
-        genres: ["Pop", "Electronic", "Indie"],
-        artists: ["Taylor Swift", "The Weeknd", "Billie Eilish"],
-      });
-    }
-  }, []);
+ useEffect(() => {
+   const fetchProfile = async () => {
+     const { data: userData, error: userError } = await supabase.auth.getUser();
+     if (userError || !userData.user) {
+       console.warn("Not logged in");
+       return;
+     }
+     const userId = userData.user.id;
+
+     const { data, error } = await supabase
+       .from("profiles")
+       .select("fname, lname, username")
+       .eq("id", userId)
+       .single();
+
+     if (error) {
+       console.error("Profile fetch error:", error);
+       return;
+     }
+
+     setUser(data);
+   };
+
+   fetchProfile();
+ }, []);
+
  
   const quickActions = [
     {
@@ -39,7 +46,7 @@ const Home = () => {
       title: "Generate Playlist",
       description:
         "Use emotion detection or choose artists to create a personalized playlist",
-      path: "/emotion",
+      path: "/playlist",
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/20 to-pink-500/20",
     },
@@ -83,7 +90,7 @@ const Home = () => {
             </span>
             {user && (
               <span className="block mt-2 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                {user.username} 
+                {user?.fname} 
               </span>
             )}
           </h1>

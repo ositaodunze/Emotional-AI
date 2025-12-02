@@ -52,7 +52,7 @@ function MainRouter() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/history" element={<PastPlaylists />} />
         <Route path="/playlist" element={<PlaylistPage/>} />
-        <Route path="/spotify-check" elememt={<PostConnectCheck/>} />
+        <Route path="/spotify-check" element={<PostConnectCheck/>} />
       </Routes>
     </div>
   );

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
+import { supabase } from "../lib/supabase";
 
 const ALL_GENRES = [
   "Pop",
@@ -40,26 +41,49 @@ const Profile = () => {
 
   // Load user data
   useEffect(() => {
-    const stored = localStorage.getItem("feedmusic_user");
-    if (stored) {
-      const parsed = JSON.parse(stored);
+    const loadData = async () => {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+        if (authError) {
+          console.error("Auth error:", userError);
+          return;
+        }
+      const userId = authData.user?.id;
+      if (!userId) return;
+    
+      const {  data: prefData, error: prefError  } = await supabase
+        .from("user_preferences")
+        .select("genres,favorite_artist")
+        .eq("id", userId)
+        .single();
+      if (prefError) {
+        console.error("Preference fetching error:", prefError);
+        return;
+      }
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("fname, lname, username")
+        .eq("id", userId)
+        .single();
+
+      if (profileError) {
+        console.error("Error loading profile:", profileError);
+        return;
+      }
+
+      const merged = {
+        ...profileData,
+        genres: prefData?.genres || [],
+        artists: prefData?.favorite_artist || [],
+      };
+
       setUser(parsed);
       setSpotifyConnected(parsed.spotifyConnected || false);
       setUsername(parsed.username || "");
       setGenres(parsed.genres || []);
       setArtists((parsed.artists || []).join(", "));
-    } else {
-      // Mock user for demo
-      setUser({
-        username: "Alex",
-        genres: ["Pop", "Electronic"],
-        artists: ["Taylor Swift", "The Weeknd"],
-      });
-      setUsername("Alex");
-      setGenres(["Pop", "Electronic"]);
-      setArtists("Taylor Swift, The Weeknd");
-    }
-  }, []);
+    };
+    loadData();
+    }, []);
 
   useEffect(() => {
     if (user) {
@@ -85,35 +109,53 @@ const Profile = () => {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const artistList = artists
       .split(",")
       .map((a) => a.trim())
       .filter((a) => a !== "");
 
-    const updated = {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user.id;
+    const { error:profileError } = await supabase
+      .from("profiles")
+      .update({username})
+      .eq("id", userId);
+
+    if (profileError) {
+      console.error("Save failed:", profileError);
+      return;
+    }
+    const { error: prefError } = await supabase
+      .from("user_preferences")
+      .update({
+        genres,
+        favorite_artist: artistList,
+      })
+      .eq("id", userId);
+
+    if (prefError) {
+      console.error("Preferences update failed:", prefError);
+      return;
+    }
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+    setUser({
       ...user,
       username,
       genres,
       artists: artistList,
-    };
-
-    localStorage.setItem("feedmusic_user", JSON.stringify(updated));
-    setUser(updated);
-    setSaved(true);
+    });
     setHasChanges(false);
-
-    setTimeout(() => setSaved(false), 3000);
   };
 
   const handleDisconnectSpotify = () => {
     alert("Spotify disconnected");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("feedmusic_user");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
-    alert("Logged out successfully!");
   };
 
   return (

@@ -7,16 +7,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8888";
 const Landing = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (isLoggedIn === "true") {
-      navigate("/home");
-      return;
-    }
-  }, [navigate]);
-
-
   return (
     <div className="home-container home-active">
       <div className="music-notes">
@@ -34,13 +24,7 @@ const Landing = () => {
             className="nav-btn login-btn"
             onClick={() => navigate("/login")}
           >
-            Login
-          </button>
-          <button
-            className="nav-btn login-btn"
-            onClick={() => navigate("/signup")}
-          >
-            Signup
+            Login/Signup
           </button>
         </div>
       </nav>

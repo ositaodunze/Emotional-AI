@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 const PlaylistPage = () => {
     const navigate= useNavigate();

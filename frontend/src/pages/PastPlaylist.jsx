@@ -11,6 +11,7 @@ import {
   Play,
 } from "lucide-react";
 import Navbar from "../components/Navbar.jsx";
+import { supabase } from "../lib/supabase";
 
 const PastPlaylists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -20,32 +21,7 @@ const PastPlaylists = () => {
     const stored = localStorage.getItem("feedmusic_history");
     if (stored) {
       setPlaylists(JSON.parse(stored));
-    } else {
-      // Mock data for demo
-      setPlaylists([
-        {
-          name: "Happy Vibes",
-          emotion: "happy",
-          date: new Date(2024, 2, 15).toISOString(),
-          tracks: Array(12).fill({}),
-          spotify_url: "https://open.spotify.com/playlist/example1",
-        },
-        {
-          name: "Melancholic Moments",
-          emotion: "sad",
-          date: new Date(2024, 2, 10).toISOString(),
-          tracks: Array(15).fill({}),
-          spotify_url: "https://open.spotify.com/playlist/example2",
-        },
-        {
-          name: "Energetic Beats",
-          emotion: "surprised",
-          date: new Date(2024, 2, 5).toISOString(),
-          tracks: Array(10).fill({}),
-          spotify_url: "https://open.spotify.com/playlist/example3",
-        },
-      ]);
-    }
+    } 
   }, []);
 
   const getEmotionEmoji = (emotion) => {

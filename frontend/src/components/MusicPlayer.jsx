@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Chatbot from "./Chatbot.jsx";
 import Navbar from "./Navbar.jsx";
+import { supabase } from "../lib/supabase";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
