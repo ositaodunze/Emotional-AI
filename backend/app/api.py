@@ -426,7 +426,7 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
                         "url": tr["external_urls"]["spotify"],
                         "uri": tr["uri"],
                         "duration_ms": tr["duration_ms"],
-                        "image":tr["image"]
+                        "image": tr["album"]["images"][0]["url"] if tr["album"]["images"] else None
                     })
         except:
             continue
@@ -567,7 +567,7 @@ async def chat(request: Request, chat_request: ChatRequest):
                                 })
                             
                             response_data["playlist"] = playlist
-                            response_data["response"] += f"\n\nCheck out these {len(playlist)} tracks I found for you! 🎶"
+                            response_data["response"] += f"\n\nCheck out these {len(playlist)} tracks I found for you!"
                     
             except Exception as e:
                 print(f"Music generation error: {e}")
