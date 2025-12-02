@@ -9,6 +9,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Profile from "./pages/Profile.jsx";
 import PastPlaylists from "./pages/PastPlaylist.jsx";
+import Login from "./pages/Login.jsx";
 import PlaylistPage from "./pages/Playlist.jsx";
 import PostConnectCheck from "./components/PostConnectCheck.jsx";
 
@@ -28,15 +29,11 @@ function MainRouter() {
     <div className="min-h-screen bg-transparent">
       <Routes>
         <Route path="/" element={<Landing />} />
-
+        <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
-
         <Route path="/connect" element={<ConnectSpotify />} />
-
         <Route path="/artist" element={<ArtistSelection />} />
-
         <Route path="/emotion" element={<EmotionDetection />} />
-
         <Route
           path="/music"
           element={
@@ -60,4 +57,5 @@ function MainRouter() {
     </div>
   );
 }
+
 export default App;
