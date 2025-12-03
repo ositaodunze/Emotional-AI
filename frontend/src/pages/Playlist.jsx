@@ -32,17 +32,6 @@ const PlaylistPage = () => {
       bgGradient: "from-purple-500/20 to-pink-500/20",
       primary: true,
     },
-    {
-      icon: <PenLine className="w-12 h-12" />,
-      title: "Type Your Mood",
-      description:
-        "Describe how you're feeling in words and we'll craft a playlist to match",
-      emoji: "✍️",
-      path: "/text-mood",
-      gradient: "from-blue-500 to-cyan-500",
-      bgGradient: "from-blue-500/20 to-cyan-500/20",
-      primary: false,
-    },
   ];
 
   return (

@@ -39,12 +39,13 @@ const Profile = () => {
   const [spotifyConnected, setSpotifyConnected] = useState(false);
   const navigate = useNavigate();
 
+
   // Load user data
   useEffect(() => {
     const loadData = async () => {
       const { data: authData, error: authError } = await supabase.auth.getUser();
         if (authError) {
-          console.error("Auth error:", userError);
+          console.error("Auth error:", authErrorError);
           return;
         }
       const userId = authData.user?.id;
@@ -54,11 +55,11 @@ const Profile = () => {
         .from("user_preferences")
         .select("genres,favorite_artist")
         .eq("id", userId)
-        .single();
       if (prefError) {
         console.error("Preference fetching error:", prefError);
         return;
       }
+      
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("fname, lname, username")
@@ -76,7 +77,7 @@ const Profile = () => {
         artists: prefData?.favorite_artist || [],
       };
 
-      setUser(parsed);
+      setUser(merged);
       setSpotifyConnected(parsed.spotifyConnected || false);
       setUsername(parsed.username || "");
       setGenres(parsed.genres || []);
