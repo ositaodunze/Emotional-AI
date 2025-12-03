@@ -7,7 +7,7 @@ import {
   Music,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { supabase } from "../lib/supabase";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
 const PostConnectCheck = () => {
@@ -47,7 +47,7 @@ const PostConnectCheck = () => {
     };
     verify();
   }, []);
-e
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex flex-col items-center justify-center px-4">

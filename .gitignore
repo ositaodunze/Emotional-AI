@@ -1,0 +1,11 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node/React cache and dependencies
+frontend/node_modules/
+frontend/build/

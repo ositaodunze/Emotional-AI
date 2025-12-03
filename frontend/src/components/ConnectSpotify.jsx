@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8888";
 
@@ -27,6 +28,18 @@ const ConnectSpotify = () => {
 
         const data = await res.json();
         setUser(data);
+         const { data: session } = await supabase.auth.getUser();
+         const userId = session?.user?.id;
+
+         if (userId) {
+           await supabase.from("spotify_log").upsert({
+             id: userId,
+             access_token: data.access_token,
+             refresh_token: data.refresh_token,
+             expires_at: data.expires_at,
+           });
+         }
+         navigate("/spotify-check")
       } catch (err) {
         console.error("Error checking Spotify login:", err);
         setUser(null);
@@ -40,11 +53,6 @@ const ConnectSpotify = () => {
 
   const handleConnect = () => {
     window.location.href = `${BACKEND_URL}/spotify/login`;
-  };
-
-  const handleContinue = () => {
-    localStorage.setItem("spotifyUser", JSON.stringify(user));
-    navigate("/artist");
   };
 
   if (loading) {
@@ -76,12 +84,6 @@ const ConnectSpotify = () => {
               className="w-24 h-24 rounded-full mx-auto mb-4 shadow-lg"
             />
           )}
-          <button
-            onClick={handleContinue}
-            className="px-6 py-2 bg-white text-green-700 rounded-full font-bold hover:bg-gray-200 transition"
-          >
-            Continue
-          </button>
         </div>
       )}
     </div>

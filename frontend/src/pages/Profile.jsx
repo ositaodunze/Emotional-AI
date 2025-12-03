@@ -130,7 +130,7 @@ const Profile = () => {
       .from("user_preferences")
       .update({
         genres,
-        favorite_artist: artistList,
+        favorite_artists: artistList,
       })
       .eq("id", userId);
 

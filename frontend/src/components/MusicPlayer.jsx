@@ -238,10 +238,48 @@ const MusicPlayer = ({ emotion, selectedArtist }) => {
       return;
     }
 
-    const name = playlistName || `${currentEmotion.label} Mix`;
     const uris = recommendations.map((t) => t.uri);
 
     try {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id;
+      if (!userId) {
+        alert("You must be logged in!");
+        return;
+      }
+      const name = playlistName || `${currentEmotion.label} Mix`;
+
+      const { data: playlist, error: playlistError } = await supabase
+        .from("playlist_history")
+        .insert({
+          user_id: userId,
+          playlist_name: playlistName,
+          emotion,
+          num_tracks: recommendations.length,
+          spotify_playlist_id: null,
+          seed_artist: selectedArtist || [],
+        })
+        .select()
+        .single();
+      if (playlistError) throw playlistError;
+
+      const playlistId = playlist.id;
+
+      const trackRows = recommendations.map((t, index) => ({
+        playlist_id: playlistId,
+        track_uri: t.uri,
+        track_name: t.name,
+        artist_name: t.artist,
+        track_image: t.image,
+        track_url: t.url,
+        duration_ms: t.duration_ms,
+        position: index,
+      }));
+      const { data: tracks, error: trackError } = await supabase
+        .from("playlist_tracks")
+        .insert(trackRows);
+      if (trackError) throw trackError;
+
       const response = await fetch(`${BACKEND_URL}/api/save-playlist`, {
         method: "POST",
         credentials: "include",
@@ -253,6 +291,13 @@ const MusicPlayer = ({ emotion, selectedArtist }) => {
       });
 
       const data = await response.json();
+
+      if (data.spotify_playlist_id) {
+        await supabase
+          .from("playlist_history")
+          .update({ spotify_playlist_id: data.spotify_playlist_id })
+          .eq("id", playlistId);
+      }
 
       if (data.status === "success") {
         alert(`Playlist "${name}" saved to Spotify!`);
@@ -342,7 +387,7 @@ const MusicPlayer = ({ emotion, selectedArtist }) => {
     };
   }, []);
 
-const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (
     <>
