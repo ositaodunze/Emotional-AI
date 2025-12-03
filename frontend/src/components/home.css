@@ -1,4 +1,5 @@
 /* Override root constraints when home is active */
+/* Remove layout constraints when home is active */
 #root.home-active {
     max-width: none !important;
     padding: 0 !important;
@@ -9,91 +10,76 @@
 body.home-active {
     display: block !important;
     place-items: unset !important;
+    margin: 0;
+    padding: 0;
 }
 
+/* MAIN CONTAINER */
 .home-container {
     width: 100%;
     min-height: 100vh;
-    background-color: white;
-    background-image: linear-gradient(#A36EFA, #AE18E5);
-    font-style: normal;
-    font-size: large;
-    font-weight: normal;
-    font-family: sans-serif;
+    background: linear-gradient(135deg, #A36EFA 0%, #AE18E5 100%);
+    font-family: "Inter", sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;       /* center vertically */
     align-items: center;
     text-align: center;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
+    padding: 0 1.5rem;
+    animation: fadeIn 1s ease;
 }
 
-.home-container ul.topnav {
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    background-color: #333333;
-}
-
-.home-container ul.topnav li a {
-    display: block;
-    color: #f1f1f1;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.home-container ul.topnav li a:hover {
-    background-color: #dddddd;
-    color: black;
-}
-
-.home-container #myH1 {
+/* HEADER TEXT */
+#myH1 {
     color: white;
-    animation-timing-function: ease-in-out;
-    animation-duration: 3s;
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 1px;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    animation: slideDown 1.2s ease;
+}
+
+/* SUBTITLE */
+#myP {
+    color: #f3e7ff;
+    font-size: 1.3rem;
+    margin-top: 1rem;
+    animation: fadeIn 2s ease;
+}
+
+/* BUTTON */
+.auth-btn {
     margin-top: 2.5rem;
-}
-
-.home-container #AuthButton,
-.home-container .auth-btn {
-    border: black;
-    border-radius: 12px;
-    padding: 10px 24px;
-    background-color: #22c55e;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: bold;
+    background: white;
+    color: #AE18E5;
+    padding: 14px 34px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 14px;
+    border: none;
     cursor: pointer;
-    margin-top: 2rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: 0.25s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
-.home-container #AuthButton:hover,
-.home-container .auth-btn:hover {
-    background-color: #16a34a;
-    transform: scale(1.05);
+.auth-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
-.home-container #AuthButton:active,
-.home-container .auth-btn:active {
-    background-color: #15803d;
-    transform: scale(0.98);
+.auth-btn:active {
+    transform: scale(0.97);
 }
 
-#myP,
-main {
-    color: white;
-    animation: pulse;
+/* SIMPLE ANIMATIONS */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
