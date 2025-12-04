@@ -20,6 +20,7 @@ from llm_classification import (expand_similar_artists,
     blend_features,
     suggest_tracks_for_artist_and_mood)
 import difflib
+import time
 
 RECCOBEATS_BASE = "https://api.reccobeats.com/v1/track/recommendation"
 
@@ -69,7 +70,9 @@ def callback(request: Request):
         value=json.dumps(token_info),
         httponly=True,
         samesite="lax",
-        secure=False
+        secure=False,
+        path="/",
+        max_age=3600 * 24 * 7  # 7 days
     )
     return response
 
@@ -78,9 +81,43 @@ def get_user(request: Request):
     token_info_json = request.cookies.get("spotify_token_info")
     if not token_info_json:
         return JSONResponse({"error": "Not logged in"}, status_code = 401)
-    sp = spotify_api.get_spotify_client(token_info_json)
+    try:
+        token_info = json.loads(token_info_json)
+    except json.JSONDecodeError:
+        return JSONResponse({"error": "Invalid token format"}, status_code=500)
+    
+    if token_info["expires_at"] <= time.time():
+        refreshed = spotify_api.refresh_access_token(token_info["refresh_token"])
+        token_info["access_token"] = refreshed["access_token"]
+        token_info["expires_at"] = refreshed["expires_at"]
+
+        if "refresh_token" in refreshed:
+            token_info["refresh_token"] = refreshed["refresh_token"]
+    
+    sp = spotify_api.get_spotify_client(token_info)
     me = sp.current_user()
-    return {"display_name": me["display_name"], "email": me["email"], "product": me["product"]}
+    response_data = JSONResponse({
+        # User Profile Details
+        "display_name": me.get("display_name"),
+        "email": me.get("email"),
+        "product": me.get("product"),
+        "spotify_id": me.get("id"),
+        
+        # Token Details (Needed for Supabase upsert on the frontend)
+        "access_token": token_info["access_token"],
+        "refresh_token": token_info["refresh_token"],
+        "expires_at": token_info["expires_at"],})
+    
+    response_data.set_cookie(
+        key="spotify_token_info",
+        value=json.dumps(token_info),
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        path="/",
+        max_age=3600 * 24 * 7  # 7 days
+    )
+    return response_data
 
     
 def get_track_genres(sp,track_id):
@@ -374,7 +411,8 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
             name = track.get("trackTitle", "Unknown Track")
             artists_data = track.get("artists",[])
             primary_artist_name = artists_data[0].get("name") if artists_data else "Unknown Artist"
-            image = track.get("album","images",0,"url")
+            album_images = meta.get("album", {}).get("images", [])
+            image = album_images[0]["url"] if album_images else None
 
             spotify_artists = [a["name"] for a in meta.get("artists", []) if a.get("name")]
             spotify_artists_lower = [n.lower() for n in spotify_artists]
@@ -386,7 +424,7 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
                 "url": spotify_url,
                 "uri": f"spotify:track:{spotify_id}",
                 "duration_ms": meta.get("duration_ms", 0),
-                "image":image
+                "album_image":image
                 }
             
             is_preferred = any(is_close_match(a, preferred_list) for a in spotify_artists_lower)
@@ -430,6 +468,8 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
             items = fallback_search["tracks"]["items"]
             if items:
                 tr = items[0]
+                album_images = tr.get("album", {}).get("images", [])
+                image = album_images[0]["url"] if album_images else None
                 fallback_results.append(
                     {
                         "name": tr["name"],
@@ -437,7 +477,7 @@ async def get_recommendations(request: Request,emotion: str = Query(..., descrip
                         "url": tr["external_urls"]["spotify"],
                         "uri": tr["uri"],
                         "duration_ms": tr["duration_ms"],
-                        "image": tr["album"]["images"][0]["url"] if tr["album"]["images"] else None
+                        "album_image": image
                     })
         except:
             continue
@@ -733,7 +773,7 @@ async def save_playlist(request: Request, payload: dict = Body(...)):
 
         return {
             "status": "success",
-            "playlist_id": playlist_id,
+            "spotify_playlist_id": playlist_id,
             "playlist_url": created["external_urls"]["spotify"]
         }
     except Exception as e:

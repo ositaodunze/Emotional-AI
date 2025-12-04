@@ -23,7 +23,7 @@ scope = (
     "playlist-modify-private "
     "user-read-playback-position "
     "user-library-read "
-    "streaming "
+    "streaming"
 
 )
 
@@ -43,6 +43,12 @@ def get_auth_url():
 # ---- Exchange authorization code for token info ----
 def get_token_from_code(code):
     return sp_oauth.get_access_token(code, as_dict=True)
+
+
+# ---- Refresh access token ----
+def refresh_access_token(refresh_token):
+    """Refresh an access token using a refresh token."""
+    return sp_oauth.refresh_access_token(refresh_token)
 
 
 # ---- Create Spotify client (auto-refresh if expired) ----

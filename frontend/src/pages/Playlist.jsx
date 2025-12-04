@@ -25,7 +25,7 @@ const PlaylistPage = () => {
       icon: <Camera className="w-12 h-12" />,
       title: "Emotion Detection",
       description:
-        "Let our AI detect your mood through facial recognition and create the perfect playlist",
+        "Utilize computer vision and Artifical Intelligence to create the perfect playlist",
       emoji: "🎭",
       path: "/artist",
       gradient: "from-purple-500 to-pink-500",
