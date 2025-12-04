@@ -27,17 +27,36 @@ const ConnectSpotify = () => {
         }
 
         const data = await res.json();
+        console.log("Spotify Token Data:", data);
         setUser(data);
-         const { data: session } = await supabase.auth.getUser();
-         const userId = session?.user?.id;
+         const { data: authData, error } = await supabase.auth.getUser();
+         const userId = authData?.user?.id;
+         console.log("Supabase User ID:", userId);
+
 
          if (userId) {
-           await supabase.from("spotify_log").upsert({
-             id: userId,
-             access_token: data.access_token,
-             refresh_token: data.refresh_token,
-             expires_at: data.expires_at,
-           });
+          const unixTimestampSeconds = data.expires_at;
+          const expiresDate = new Date(unixTimestampSeconds * 1000);
+          const expiresISOString = expiresDate.toISOString(); 
+
+          const {data: upsertData, error: upsertError} = await supabase
+             .from("spotify_log")
+             .upsert({
+               id: userId,
+               access_token: data.access_token,
+               refresh_token: data.refresh_token,
+               spotify_id: data.spotify_id,
+               display_name: data.display_name,
+               product_type: data.product,
+               expires_at: expiresISOString,
+             })
+             .select();
+
+             if (upsertError) {
+              console.error("Supabase Upsert Error:", upsertError);
+             } else{
+              console.log("Saved to DB:", upsertData);
+             }
          }
          navigate("/spotify-check")
       } catch (err) {

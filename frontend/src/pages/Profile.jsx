@@ -78,10 +78,10 @@ const Profile = () => {
       };
 
       setUser(merged);
-      setSpotifyConnected(parsed.spotifyConnected || false);
-      setUsername(parsed.username || "");
-      setGenres(parsed.genres || []);
-      setArtists((parsed.artists || []).join(", "));
+      setSpotifyConnected(merged.spotifyConnected || false);
+      setUsername(merged.username || "");
+      setGenres(merged.genres || []);
+      setArtists((merged.artists || []).join(", "));
     };
     loadData();
     }, []);

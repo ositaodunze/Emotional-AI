@@ -1,0 +1,41 @@
+{
+  "content": [
+    {
+      "trackTitle": "Blinding Lights",
+      "artists": [{ "name": "The Weeknd" }],
+      "album": {
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2734c4c4e3d3a8c6e7e0a1fbb7f"
+          }
+        ]
+      },
+      "href": "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"
+    },
+    {
+      "trackTitle": "Don’t Start Now",
+      "artists": [{ "name": "Dua Lipa" }],
+      "album": {
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2730b184d0f5f382f88a06cc0e2"
+          }
+        ]
+      },
+      "href": "https://open.spotify.com/track/3PfIrDoz19wz7qK7tYeu62"
+    },
+    {
+      "trackTitle": "Watermelon Sugar",
+      "artists": [{ "name": "Harry Styles" }],
+      "album": {
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b273bffcc17c2730c857f2d5f985"
+          }
+        ]
+      },
+      "href": "https://open.spotify.com/track/6UelLqGlWMcVH1E5c4H7lY"
+    }
+  ]
+}
+

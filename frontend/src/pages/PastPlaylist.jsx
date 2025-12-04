@@ -200,7 +200,7 @@ const PastPlaylists = () => {
                     <div className="border-t border-purple-500/20 mb-4"></div>
 
                     <a
-                      href={item.spotify_playlist_id}
+                      href={`https://open.spotify.com/playlist/{item.spotify_playlist_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
