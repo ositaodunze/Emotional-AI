@@ -1,108 +1,153 @@
 # FeedMusic
 
-FeedMusic is an Emotional AI web-application that bridges the gap between a user's real-time emotional state and their personalized music experience. By analyzing facial expressions captured by webcam, the system dynamically generates and plays a Spotify playlist tailored to either match or improve the detected mood.
-
-## Key Features:
-
-- Real-Time Emotion Detection: analyze user's face to determine dominate mood, which the user can decide on using. 
-- Emotional Artifical Intelligence Core: Mapsthe detected emotion to specific audio featues(like valence and energy) using a pre-trained machine learning model based on Russell's Circumpluar theory of music model. 
-
-- Personalized Recommendaion Engine: Integrates the emotional features, user-preferred genres, and top listening history to generate a hyper-personalized playlist using a third-party recommendation service (ReccoBeats).
-
-- Intelligent Genre Mapping: Uses OpenAI LLM to normalize Spotify's micro-genres into a standard set of master genres, ensuring consistent personalization. 
-
-- Seamless Spotify Integration: Enables direct playlist playback and control on the user's Spotify account.
-
-## Focused Emotions
-
+FeedMusic is an Emotional AI web-application that bridges the gap between a user's real-time emotional state and their personalized music experience. By analyzing facial expressions captured through a live webcam feed, FeedMusic identifies the user's emotional state, refines it through user confirmation, and dynamically generates a Spotify playlist tailored to either match or improve the detected mood.The system integrates facial recognitom, machine learning models, Large Language Model (LLM) powered normalization, and a hybrid recommendation engine.
 The system currently focuses on classifying and responding to five fundamental facial expressions:
-- Happiness, Surprise, Neutrality, Sadness, Anger
 
-## Technical Architecure
+- Happiness
+- Surprise
+- Neutrality
+- Sadness
+- Anger
 
-FeedMusic follows a modern, two-part architecture consisting of a real-time client-side emotion detector and a powerful Python backend API.
+### Architecture Components
 
-## Frontend
+- **Frontend**: Handles all client-side processing, UI rendering, and user interactions. Emotion detection runs entirely in the browser for privacy and performance.
+- **Backend**: Manages ML model inference, external API communications, playlist generation, and serves the REST API.
 
-- Technology Stack: VITE, React, HTML, CSS
-- Facial Recognition: Utilizes the face-api.js library, a JavaScript implementation of deep learning models for face detection, model analysis, and emotion classification, ensuring real-time performance directly in the browser.
+For detailed architecture information, see:
 
-## Backend 
+- [Frontend Architecture](./frontend/README.md#system-architecture)
+- [Backend Architecture](./backend/README.md#system-architecture)
 
-The service layer handles all the complex AI, data processing, and external API communication.
-- Technology Stack: Python 3.11+, FastAPI, Uvicorn, requests, pandas
+## Key Features
 
-- Data Models: Uses Pydantic for robust data validation and clear API schema definition.
+### Real-Time Emotion Detection
 
-External AI/APIs:
+Live facial expression analysis is performed directly in the browser using face-api.js models, ensuring low latency and privacy. The system detects five core emotions: **Happiness, Surprise, Neutrality, Sadness, and Anger**.
 
-- Spotify Web API: Handles user authentication, retrieving top tracks/artists, and initiating music playback.
+### Emotional Artificial Intelligence Core
 
-- Emotional Feature Model: A locally loaded machine learning model (music_model, ohe, scaler_y) predicts target Spotify audio features (e.g., energy, valence) from the input emotion.
+A custom machine learning model that translates user emotions into numerical Spotify audio features using:
 
-- ReccoBeats: An external recommendation API used to generate high-quality tracks based on the computed emotional features and user seed tracks.
+- Russell's Circumplex Model of Affect (valence/energy mapping)
+- Tempo and loudness calibration
+- Neural network-based feature prediction
 
-- OpenAI: Utilized for a Genre Normalization Service to map raw Spotify micro-genres to the project's consistent master genres.
+### Personalized Recommendation Engine
 
-## Setting Up the Development Environment
+Integrates multiple data sources to generate hyper-personalized playlists:
 
-This project requires both a Node.js environment for the frontend and a Python environment for the backend API.
+- Emotion-predicted audio features
+- User's top Spotify artists and tracks
+- LLM-expanded similar artists
+- Third-party recommendation service (ReccoBeats)
+
+### Intelligent Artist Normalization
+
+Uses LLM (Groq) to expand user-selected artists to similar artists and extract their musical feature profiles, creating a richer recommendation context.
+
+### Seamless Spotify Integration
+
+- OAuth 2.0 authentication
+- Direct playlist creation and saving
+- Real-time playback control
+- User profile and listening history access
+
+### Conversational DJ
+
+An interactive chatbot that:
+
+- Understands natural language requests
+- Detects user language automatically
+- Can trigger playlist generation through conversation
+- Supports text-to-speech with multiple voice personalities
+
+## Technology Stack
+
+### Frontend
+
+- **Framework**: React 19.1.1 with Vite
+- **Styling**: Tailwind CSS
+- **Facial Recognition**: face-api.js
+- **Routing**: React Router DOM
+- **Authentication**: Supabase
+
+### Backend
+
+- **Framework**: FastAPI with Uvicorn
+- **ML/AI**: TensorFlow/Keras, scikit-learn, pandas
+- **External APIs**: Spotify Web API, ReccoBeats, Groq, ElevenLabs
+- **Data Validation**: Pydantic
+
+For complete technology details, see:
+
+- [Frontend Technology Stack](./frontend/README.md#technology-stack)
+- [Backend Technology Stack](./backend/README.md#technology-stack)
+
+## Getting Started
 
 ### Prerequisites
-- Node.js & npm
-- Python 3.11 or higher
 
-API Keys: You will need to obtain and configure API keys for:
-- Spotify: Client ID and Secret (for authorization flow)
-- OpenAI: API Key (for genre normalization)
+- **Node.js** (v18 or higher) and npm
+- **Python** 3.11 or higher
+- **Git**
+- **Webcam** access (for emotion detection)
 
-## Backend Setup 
-- Clone the reposistory:
-``` 
-git clone
-```
-cd Emotional-Ai
+### Required API Keys
 
-- Create and activate virtual environment: 
-```
-python -m venv .venv
-.venv\Scripts\activate  #Windows
-source .venv/bin/activate  #Linux/macOS
-```
+You will need to obtain and configure API keys for:
 
-- Install dependencies:
-```
-pip install -r requirements.txt
-```
+- **Spotify**: Client ID and Secret ([Get from Spotify Developer Dashboard](https://developer.spotify.com/dashboard))
+- **Groq**: API key ([Get from Groq](https://console.groq.com/))
+- **ElevenLabs**: API key ([Get from ElevenLabs](https://elevenlabs.io/))
+- **Supabase**: URL and Anon Key ([Get from Supabase](https://supabase.com/))
+- **OpenAI**: API key (optional, for fallback)
 
-- Configure Environment Variables:
-Create a file named .env in the root directory and add your API keys:
-```
-SPOTIPY_CLIENT_ID="your_spotify_client_id"
-SPOTIPY_CLIENT_SECRET="your_spotify_client_secret"
-OPENAI_API_KEY="your_openai_api_key
+### Quick Start
+
+1. **Clone the repository**:
+
+```bash
+git clone https://github.com/ositaodunze/Emotional-AI
+cd Emotional-AI
 ```
 
-- Run the Backend Service:
+- [Frontend Setup Guide](./frontend/README.md#development-setup)
+- [Backend Setup Guide](./backend/README.md#development-setup)
+
+## Project Structure
+
 ```
-uvicorn app.main:app --reload
+Emotional-AI/
+├── frontend/              # React frontend application
+│   ├── src/              # Source code
+│   │   ├── components/   # React components
+│   │   ├── pages/        # Page components
+│   │   └── lib/          # Utilities
+│   ├── public/           # Static assets and ML models
+│   └── README.md         # Frontend documentation
+├── backend/              # FastAPI backend service
+│   ├── app/              # Application code
+│   ├── models/           # Pre-trained ML models
+│   ├── data/             # Training data
+│   └── README.md         # Backend documentation
+└── README.md             # This file
 ```
 
-## Frontend Setup 
-- Navigate to the frontend directory: 
+## Development
+
+**Backend**:
+
+```bash
+cd backend
+main.py
 ```
+
+**Frontend**:
+
+```bash
 cd frontend
-```
-
-- To open website: 
-```
 npm run dev
 ```
 
-
-### Next Steps
-
-## Team
-Developed by Jaunel Panton, Osita Odunze, Marissa Savage, Najae Potts
-
-
+Developed by **Jaunel Panton, Osita Odunze, Marissa Savage, Najae Potts**
