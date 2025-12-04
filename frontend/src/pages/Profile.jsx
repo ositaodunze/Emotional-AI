@@ -53,7 +53,7 @@ const Profile = () => {
     
       const {  data: prefData, error: prefError  } = await supabase
         .from("user_preferences")
-        .select("genres,favorite_artist")
+        .select("genres,favorite_artists")
         .eq("id", userId)
       if (prefError) {
         console.error("Preference fetching error:", prefError);
