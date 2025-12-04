@@ -1,6 +1,6 @@
 uvicorn
 fastapi
-spotify
+spotipy
 python-dotenv
 pandas
 numpy
