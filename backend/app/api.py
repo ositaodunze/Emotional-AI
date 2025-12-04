@@ -139,6 +139,17 @@ def get_spotify_seed_tracks(sp, genres=None):
     except Exception as e:
         print(f"Error getting seed tracks: {e}")
         return []
+# in app/api.py
+from fastapi import HTTPException
+
+@app.get("/spotify/token")
+def get_spotify_token(request: Request):
+    token_info_json = request.cookies.get("spotify_token_info")
+    if not token_info_json:
+        raise HTTPException(status_code=401, detail="Not authorized")
+
+    token_info = json.loads(token_info_json)
+    return {"access_token": token_info["access_token"]}
 
 @app.get("/api/top-artists")
 def get_top_artists(request: Request):

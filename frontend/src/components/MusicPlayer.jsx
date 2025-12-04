@@ -346,46 +346,57 @@ const MusicPlayer = ({ emotion, selectedArtist }) => {
     script.src = "https://sdk.scdn.co/spotify-player.js";
     script.async = true;
     document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const token = JSON.parse(
-        localStorage.getItem("spotify_token_info")
-      ).access_token;
-
-      const player = new window.Spotify.Player({
-        name: "FeedMusic Player",
-        getOAuthToken: (cb) => cb(token),
-        volume: 0.5,
-      });
-
-      setPlayer(player);
-
-      player.addListener("ready", ({ device_id }) => {
-        console.log("Ready with Device ID", device_id);
-        localStorage.setItem("feedmusic_device_id", device_id);
-      });
-
-      player.addListener("player_state_changed", (state) => {
-        if (!state) return;
-
-        const current = state.track_window.current_track;
-        setProgress(state.position);
-        setDuration(state.duration);
-
-        setCurrentTrack({
-          id: current.id,
-          name: current.name,
-          artist: current.artists[0].name,
-          duration_ms: current.duration_ms,
-          image: current.album.images[0].url,
+  
+    window.onSpotifyWebPlaybackSDKReady = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/spotify/token`, {
+          credentials: "include",
         });
-
-        setIsPlaying(!state.paused);
-      });
-
-      player.connect();
+        if (!res.ok) {
+          console.error("Failed to fetch Spotify token");
+          return;
+        }
+        const data = await res.json();
+        const token = data.access_token;
+  
+        const playerInstance = new window.Spotify.Player({
+          name: "FeedMusic Player",
+          getOAuthToken: (cb) => cb(token),
+          volume: 0.5,
+        });
+  
+        setPlayer(playerInstance);
+  
+        playerInstance.addListener("ready", ({ device_id }) => {
+          console.log("Ready with Device ID", device_id);
+          localStorage.setItem("feedmusic_device_id", device_id);
+        });
+  
+        playerInstance.addListener("player_state_changed", (state) => {
+          if (!state) return;
+  
+          const current = state.track_window.current_track;
+          setProgress(state.position);
+          setDuration(state.duration);
+  
+          setCurrentTrack({
+            id: current.id,
+            name: current.name,
+            artist: current.artists[0].name,
+            duration_ms: current.duration_ms,
+            image: current.album.images[0].url,
+          });
+  
+          setIsPlaying(!state.paused);
+        });
+  
+        playerInstance.connect();
+      } catch (err) {
+        console.error("Error initializing Spotify Web Playback SDK:", err);
+      }
     };
   }, []);
+  
 
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
@@ -527,6 +538,10 @@ const MusicPlayer = ({ emotion, selectedArtist }) => {
                   </div>
                 )}
               </div>
+
+              
+
+              
 
               {currentTrack && (
                 <>
