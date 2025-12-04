@@ -53,10 +53,7 @@ const PlaylistPage = () => {
                 Create a Playlist
               </span>
             </h1>
-            <p className="text-xl text-purple-200 max-w-2xl mx-auto">
-              Choose your preferred method to generate a personalized playlist
-              that matches your vibe
-            </p>
+            
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -67,7 +64,6 @@ const PlaylistPage = () => {
                 className={`group relative cursor-pointer bg-gradient-to-br from-slate-800/50 to-purple-900/30 backdrop-blur-sm border border-purple-500/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:border-purple-400/50 transition-all duration-300
                 ${method.primary ? "md:col-span-2" : ""}`}
               >
-                {/* Background Gradient Glow */}
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${method.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                 />
@@ -121,17 +117,7 @@ const PlaylistPage = () => {
                   </div>
                 </div>
 
-                {/* Recommended Badge */}
-                {method.primary && (
-                  <div className="absolute top-6 right-6 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-white" />
-                      <span className="text-sm font-bold text-white">
-                        Recommended
-                      </span>
-                    </div>
-                  </div>
-                )}
+                
               </div>
             ))}
           </div>

@@ -63,7 +63,7 @@ def login():
 def callback(request: Request):
     code = request.query_params.get("code")
     token_info = spotify_api.get_token_from_code(code)
-    response = RedirectResponse("http://127.0.0.1:5173/")
+    response = RedirectResponse("http://127.0.0.1:5173/home")
     response.set_cookie(
         key="spotify_token_info",
         value=json.dumps(token_info),
