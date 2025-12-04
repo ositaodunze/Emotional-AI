@@ -95,11 +95,6 @@ const Home = () => {
             )}
           </h1>
 
-          <p className="text-xl text-purple-200 max-w-2xl mx-auto mb-8">
-            How are you feeling today? Let's create the
-            perfect soundtrack for your mood.
-          </p>
-
           {/* Primary CTA */}
           <button
             onClick={() => handleNavigation("/artist")}
@@ -140,10 +135,6 @@ const Home = () => {
                   {action.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-purple-400 group-hover:text-purple-300 font-medium">
-                  Get started
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
               </div>
             </div>
           ))}
