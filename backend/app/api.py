@@ -32,10 +32,16 @@ class EmotionInput(BaseModel):
 #model
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    ohe, scaler_y, music_model = verify_load_model()
-    app.state.ohe = ohe
-    app.state.scaler_y = scaler_y
-    app.state.music_model = music_model
+    try:
+        print("🔄 Loading ML models...")
+        ohe, scaler_y, music_model = verify_load_model()
+        app.state.ohe = ohe
+        app.state.scaler_y = scaler_y
+        app.state.music_model = music_model
+        print("✅ Application startup complete")
+    except Exception as e:
+        print(f"❌ Startup error: {e}")
+        raise
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -72,7 +78,7 @@ def callback(request: Request):
         samesite="lax",
         secure=False,
         path="/",
-        max_age=3600 * 24 * 7  # 7 days
+        max_age=3600 * 24 * 7 
     )
     return response
 
