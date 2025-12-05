@@ -1,6 +1,6 @@
 # FeedMusic
 
-FeedMusic is an Emotional AI web-application that bridges the gap between a user's real-time emotional state and their personalized music experience. By analyzing facial expressions captured through a live webcam feed, FeedMusic identifies the user's emotional state, refines it through user confirmation, and dynamically generates a Spotify playlist tailored to either match or improve the detected mood.The system integrates facial recognitom, machine learning models, Large Language Model (LLM) powered normalization, and a hybrid recommendation engine.
+FeedMusic is an Emotional AI web-application that bridges the gap between a user's real-time emotional state and their personalized music experience. By analyzing facial expressions captured through a live webcam feed, FeedMusic identifies the user's emotional state, refines it through user confirmation, and dynamically generates a Spotify playlist tailored to either match or improve the detected mood.The system integrates facial recogniton, machine learning models, Large Language Model (LLM) powered normalization, and a hybrid recommendation engine.
 The system currently focuses on classifying and responding to five fundamental facial expressions:
 
 - Happiness
@@ -8,6 +8,8 @@ The system currently focuses on classifying and responding to five fundamental f
 - Neutrality
 - Sadness
 - Anger
+
+- Project Poster: (<https://www.canva.com/design/DAG6mmIrQdE/Km51YMoLtozccVYzUbQx-A/edit?utm_content=DAG6mmIrQdE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
 
 ### Architecture Components
 
