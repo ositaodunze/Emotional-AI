@@ -8,7 +8,7 @@ def verify_load_model():
 
     missing =[p for p in MODEL_PATHS.values() if not os.path.exists(p)]
     if missing:
-        print(f"⚠️ Missing model files: {missing}. Attempting to generate...")
+        print(f"Missing model files: {missing}. Attempting to generate...")
         try:
             subprocess.run(["python", "emotionmusic.py"], check=True)
         except subprocess.CalledProcessError as e:
@@ -18,7 +18,7 @@ def verify_load_model():
         ohe = joblib.load(MODEL_PATHS["encoder"])
         scaler_y = joblib.load(MODEL_PATHS["scaler"])
         music_model = tf.keras.models.load_model(MODEL_PATHS["model"],compile=False)
-        print("✅ Models loaded successfully")
+        print("Models loaded successfully")
         return ohe, scaler_y, music_model
     except Exception as e:
         raise RuntimeError(f"Failed to load models: {e}. Please ensure model files exist in the models/ directory.")

@@ -33,14 +33,14 @@ class EmotionInput(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        print("🔄 Loading ML models...")
+        print("Loading ML models...")
         ohe, scaler_y, music_model = verify_load_model()
         app.state.ohe = ohe
         app.state.scaler_y = scaler_y
         app.state.music_model = music_model
-        print("✅ Application startup complete")
+        print("Application startup complete")
     except Exception as e:
-        print(f"❌ Startup error: {e}")
+        print(f"Startup error: {e}")
         raise
     yield
 

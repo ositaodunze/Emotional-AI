@@ -9,7 +9,7 @@ The frontend is responsible for the user interface, real-time emotion detection,
 ## How to start the development server
 
 ```bash
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
 
 ## Technology Stack
